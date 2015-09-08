@@ -49,13 +49,13 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       }
   })
-    .state('app.support', {
-      url: '/support',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/menu/support.html'
-        }
+  .state('app.support', {
+    url: '/support',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/menu/support.html'
       }
+    }
   })
 
   .state('app.tutorial', {
@@ -71,7 +71,8 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/landing',
     views: {
       'menuContent': {
-        templateUrl: 'templates/landing_page.html'
+        templateUrl: 'templates/landing_page.html',
+        controller: 'landingCtrl'
       }
     }
   })
@@ -80,10 +81,12 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/signup',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/signup_page.html'
+        templateUrl: 'templates/registration/signup_page.html',
+        controller: 'signupCtrl' 
       }
-    }
+    },
   })
+
   .state('app.add_vehicle', {
     url: '/add_vehicle',
     views: {
@@ -122,5 +125,5 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/home');
+  $urlRouterProvider.otherwise('/app/landing');
 });
