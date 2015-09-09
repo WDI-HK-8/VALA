@@ -1,0 +1,26 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Payment Info</h1>
+  </ion-header-bar>
+  <ion-content>
+    <form ng-submit="goToHome()">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Credit Card Number</span>
+          <input type="text" ng-model="paymentForm.credit_card_number">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">CCV Code</span>
+          <input type="text" ng-model="paymentForm.ccv_code">
+        </label>
+        <label class="item item-input">
+          <span class="input-label">Expiration Date</span>
+          <input type="text" placeholder="e.g. 01/03/2010" ng-model="paymentForm.expiration_date">
+        </label>
+        <label class="item">
+          <button type="submit" href="#/app/home" class="button button-block button-positive">Done!</button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>

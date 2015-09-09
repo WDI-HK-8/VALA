@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
+var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -86,12 +86,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
       }
     },
   })
-
   .state('app.add_vehicle', {
     url: '/add_vehicle',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/add_vehicle_page.html'
+        templateUrl: 'templates/registration/add_vehicle_page.html',
+        controller: 'addVehicleCtrl'
       }
     }
   })
@@ -99,7 +99,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
     url: '/payment',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/payment_page.html'
+        templateUrl: 'templates/registration/payment_page.html',
+        controller: 'addPaymentCtrl'
       }
     }
   })
@@ -135,3 +136,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
     confirmationSuccessUrl:  window.location.href
   });
 });
+
+// valaApp.factory('currentUser', ['$scope', function($scope){
+//   var x = {};
+//   // var validateUser = function(response){
+//   //   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user')) 
+//   //   $window.localStorage.setItem('current-user', JSON.stringify(response));
+//   // }
+//   return x;
+// }]);
