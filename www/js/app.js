@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth'])
+var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'uiGmapgoogle-maps'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -36,7 +36,8 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
     url: '/home',
     views: {
       'menuContent': {
-        templateUrl: 'templates/menu/home.html'
+        templateUrl: 'templates/home.html',
+        controller: 'homeCtrl'
       }
     }
   })

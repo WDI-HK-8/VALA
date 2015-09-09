@@ -1,11 +1,14 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $auth, $window, $http) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
 
   var validateUser = function(){
     $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'))
-      console.log($scope.currentUser);
+      console.log($scope.currentUser.uid + ' is logged in.');
+      if ($scope.currentUser != null){
+        $state.go('app.home')
+      }
   }
 
   validateUser(); //gets the current user
@@ -14,6 +17,7 @@ angular.module('starter.controllers', [])
 
 .controller('landingCtrl', function($scope, $auth, $http, $window, $state) {
   $scope.signinForm = {};
+
   $scope.car_exist = false;
 
   $scope.signin = function(){
@@ -67,6 +71,59 @@ angular.module('starter.controllers', [])
     $state.go('app.home');
     console.log('go home!');
   }
+})
+
+.controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
+
+  $scope.myLocation = {
+      lng : '',
+      lat: ''
+  };
+
+  $scope.map = { 
+    center: { 
+      latitude: 45, 
+      longitude: -73 
+    }, 
+    zoom: 8 
+  };
+
+       
+  $scope.drawMap = function(position) {
+ 
+    //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
+    $scope.$apply(function() {
+      $scope.myLocation.lng = position.coords.longitude;
+      $scope.myLocation.lat = position.coords.latitude;
+ 
+      $scope.map = {
+        center: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        },
+        zoom: 14,
+        pan: 1
+      };
+ 
+      $scope.marker = {
+        id: 0,
+        coords: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        }
+      }; 
+       
+      $scope.marker.options = {
+        draggable: false,
+        labelContent: "lat: " + $scope.marker.coords.latitude + '<br/> ' + 'lon: ' + $scope.marker.coords.longitude,
+        labelAnchor: "80 120",
+        labelClass: "marker-labels"
+      };  
+    });
+  }
+ 
+  navigator.geolocation.getCurrentPosition($scope.drawMap);
+
 });
 
 
