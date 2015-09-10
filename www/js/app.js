@@ -1,10 +1,6 @@
-// Ionic Starter App
-
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers'])
+var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'uiGmapgoogle-maps'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -22,7 +18,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
+.config(function($stateProvider, $urlRouterProvider, $authProvider) {
   $stateProvider
 
   .state('app', { //APP MENU
@@ -36,7 +32,8 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/home',
     views: {
       'menuContent': {
-        templateUrl: 'templates/menu/home.html'
+        templateUrl: 'templates/home.html',
+        controller: 'homeCtrl'
       }
     }
   })
@@ -49,13 +46,13 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       }
   })
-    .state('app.support', {
-      url: '/support',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/menu/support.html'
-        }
+  .state('app.support', {
+    url: '/support',
+    views: {
+      'menuContent': {
+        templateUrl: 'templates/menu/support.html'
       }
+    }
   })
 
   .state('app.tutorial', {
@@ -71,7 +68,8 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/landing',
     views: {
       'menuContent': {
-        templateUrl: 'templates/landing_page.html'
+        templateUrl: 'templates/landing_page.html',
+        controller: 'landingCtrl'
       }
     }
   })
@@ -80,15 +78,17 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/signup',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/signup_page.html'
+        templateUrl: 'templates/registration/signup_page.html',
+        controller: 'signupCtrl' 
       }
-    }
+    },
   })
   .state('app.add_vehicle', {
     url: '/add_vehicle',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/add_vehicle_page.html'
+        templateUrl: 'templates/registration/add_vehicle_page.html',
+        controller: 'addVehicleCtrl'
       }
     }
   })
@@ -96,7 +96,8 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     url: '/payment',
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/payment_page.html'
+        templateUrl: 'templates/registration/payment_page.html',
+        controller: 'addPaymentCtrl'
       }
     }
   })
@@ -122,5 +123,22 @@ angular.module('starter', ['ionic', 'starter.controllers'])
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/home');
+  $urlRouterProvider.otherwise('/app/landing');
+  $authProvider.configure({
+    apiUrl:                 'http://localhost:3000',
+    emailSignInPath:        '/auth/sign_in',
+    emailRegistrationPath:  '/auth',
+    signOutUrl:             '/auth/sign_out',
+    accountUpdatePath:      '/auth',
+    confirmationSuccessUrl:  window.location.href
+  });
 });
+
+// valaApp.factory('currentUser', ['$scope', function($scope){
+//   var x = {};
+//   // var validateUser = function(response){
+//   //   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user')) 
+//   //   $window.localStorage.setItem('current-user', JSON.stringify(response));
+//   // }
+//   return x;
+// }]);

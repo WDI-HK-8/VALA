@@ -1,56 +1,187 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout, $auth, $window, $http, $state) {
+  // controls the display of hamburger navicon
 
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
+  var validateUser = function(){
+    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'))
+      console.log($scope.currentUser.uid + ' is logged in.');
+      if ($scope.currentUser != null){
+        $state.go('app.home')
+      }
+  }
 
-  // Form data for the login modal
-  $scope.loginData = {};
+  validateUser(); //gets the current user
 
-  // Create the login modal that we will use later
-  $ionicModal.fromTemplateUrl('templates/landing_page.html', {
-    scope: $scope
-  }).then(function(modal) {
-    $scope.modal = modal;
+})
+
+.controller('landingCtrl', function($scope, $auth, $http, $window, $state) {
+  $scope.signinForm = {};
+
+  $scope.car_exist = false;
+
+  $scope.signin = function(){
+    $auth.submitLogin($scope.signinForm).then(function(response){
+      console.log(response);
+      $window.localStorage.setItem('current-user', JSON.stringify(response));
+      // set current user item
+      if ($scope.car_exist == false){
+        $state.go('app.add_vehicle');
+      }
+
+    }).catch(function(response){
+      console.log(response);
+    })
+  }
+})
+
+.controller('signupCtrl', function($scope, $auth, $http, $state) {
+  $scope.signupForm = {};
+
+  $scope.signup = function(){
+    $auth.submitRegistration($scope.signupForm).then(function(response){
+      console.log(response);
+      $state.go('app.landing');
+      
+    }).catch(function(response){
+      console.log(response);
+    })
+  }
+})
+
+.controller('addVehicleCtrl', function($scope, $auth, $http, $window, $state) {
+  $scope.carForm = {};
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  console.log($scope.currentUser.id);
+
+  $scope.addVehicle = function(){
+    console.log($scope.currentUser.id);
+    $http.put('http://localhost:3000/api/v1/users/'+$scope.currentUser.id, $scope.carForm).then(function(response){
+      console.log(response);
+      $state.go('app.payment');
+
+    }).catch(function(response){
+      console.log(response);
+    })
+  }
+})
+
+.controller('addPaymentCtrl', function($scope, $auth, $http, $window, $state) {
+  $scope.goToHome = function(){
+    $state.go('app.home');
+    console.log('go home!');
+  }
+})
+
+.controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
+
+  $scope.myLocation = {
+      lng : '',
+      lat: ''
+  };
+
+  $scope.mapConfig = { 
+    center: { 
+      latitude: 45, 
+      longitude: -73 
+    }, 
+    zoom: 8,
+    events: {
+      center_changed: function(a, b, c){console.log(a.data.map.center)}
+    }
+
+  };
+
+       
+  $scope.drawMap = function(position) {
+ 
+    //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
+    $scope.$apply(function() {
+      $scope.myLocation.lng = position.coords.longitude;
+      $scope.myLocation.lat = position.coords.latitude;
+ 
+      $scope.map = {
+        center: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        },
+        zoom: 10,
+        pan: 2
+      };
+
+      $scope.currentLocation = {
+        id: 0,
+        coords: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        },
+        options: {
+          animation: google.maps.Animation.BOUNCE,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+        }
+      };
+
+     
+
+      // this needs to show valet in area
+      $scope.marker = {
+        id: "self",
+        coords: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        },
+        options: {
+          animation: google.maps.Animation.BOUNCE,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+        }
+      }; 
+      
+      // this needs to show valet in area
+      $scope.userPickupMarkers = [
+        {
+          id: "1",
+          title: "you",
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+        }
+      ];
+
+      $scope.events = {
+        center_changed: function(a, b, c){console.log(a,b,c);}
+      };
+
+    });
+  }
+
+  // where the map is initiated and called
+  navigator.geolocation.getCurrentPosition($scope.drawMap);
+  navigator.geolocation.getCurrentPosition(function(position){
+    $scope.coordinates = {
+      lat: position.coords.latitude, 
+      lng: position.coords.longitude
+    };
   });
 
-  // Triggered in the login modal to close it
-  $scope.closeLogin = function() {
-    $scope.modal.hide();
-  };
+  $scope.sendCurrentLocation = function(){
+    console.log($scope.coordinates);
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({'location': $scope.coordinates}, function(results, status){
+      console.log(results);
+    });
+    // send out http put request to location
+  }
 
-  // Open the login modal
-  $scope.login = function() {
-    $scope.modal.show();
-  };
+  $scope.sendPickupLocation = function(query){
+    // console.log(query);
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({'address': query + ', Hong Kong'}, function(results, status){
+      console.log('query----->', results[0].formatted_address, 'coords----->' ,results[0].geometry.location);
+      $scope.query_coords = [results[0].geometry.location.G, results[0].geometry.location.K];
+      console.log($scope.query_coords);
+    });
+  }
 
-  // Perform the login action when the user submits the login form
-  $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
-    // Simulate a login delay. Remove this and replace with your login
-    // code if using a login system
-    $timeout(function() {
-      $scope.closeLogin();
-    }, 1000);
-  };
-})
-
-.controller('PlaylistsCtrl', function($scope) {
-  $scope.playlists = [
-    { title: 'Reggae', id: 1 },
-    { title: 'Chill', id: 2 },
-    { title: 'Dubstep', id: 3 },
-    { title: 'Indie', id: 4 },
-    { title: 'Rap', id: 5 },
-    { title: 'Cowbell', id: 6 }
-  ];
-})
-
-.controller('PlaylistCtrl', function($scope, $stateParams) {
 });
+
+
