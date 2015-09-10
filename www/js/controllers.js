@@ -75,24 +75,16 @@ angular.module('starter.controllers', [])
 
 .controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
 
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
   $scope.myLocation = {
       lng : '',
       lat: ''
   };
-
-  $scope.mapConfig = { 
-    center: { 
-      latitude: 45, 
-      longitude: -73 
-    }, 
-    zoom: 8,
-    events: {
-      center_changed: function(a, b, c){console.log(a.data.map.center)}
-    }
-
-  };
-
-       
+  // plot 
+  // $http.get('http://vala-api.herokuapp.com/api/v1/users/')
+  
+  // fed into navigator to create the map
   $scope.drawMap = function(position) {
  
     //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
@@ -107,6 +99,15 @@ angular.module('starter.controllers', [])
         },
         zoom: 10,
         pan: 2
+      };
+
+      $scope.mapConfig = { 
+        events: {
+          center_changed: function(a, b, c){
+            $scope.center_coords = a.data.map.center;
+            console.log($scope.center_coords);
+          }
+        }
       };
 
       $scope.currentLocation = {
@@ -148,7 +149,9 @@ angular.module('starter.controllers', [])
       ];
 
       $scope.events = {
-        center_changed: function(a, b, c){console.log(a,b,c);}
+        center_changed: function(a, b, c){
+          console.log(a,b,c);
+        }
       };
 
     });
@@ -156,32 +159,36 @@ angular.module('starter.controllers', [])
 
   // where the map is initiated and called
   navigator.geolocation.getCurrentPosition($scope.drawMap);
-  navigator.geolocation.getCurrentPosition(function(position){
-    $scope.coordinates = {
-      lat: position.coords.latitude, 
-      lng: position.coords.longitude
-    };
-  });
 
-  $scope.sendCurrentLocation = function(){
-    console.log($scope.coordinates);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'location': $scope.coordinates}, function(results, status){
-      console.log(results);
-    });
-    // send out http put request to location
+  $scope.sendCenterLocation = function(){
+    if(!$scope.center_coords){
+      console.log('My current location is X:' + $scope.myLocation.lat + ', Y: ' + $scope.myLocation.lng);
+
+      var request = {request: {
+        latitude: $scope.myLocation.lat,
+        longitude: $scope.myLocation.lng
+      }}
+
+      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+        console.log(response);
+      }).catch(function(response){
+        console.log(response);
+      })
+
+    } else{
+      console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
+
+      var request = {request: {
+        latitude: $scope.center_coords.G,
+        longitude: $scope.center_coords.K
+      }};
+
+      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+        console.log(response);
+      }).catch(function(response){
+        console.log(response);
+      })
+
+    }
   }
-
-  $scope.sendPickupLocation = function(query){
-    // console.log(query);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'address': query + ', Hong Kong'}, function(results, status){
-      console.log('query----->', results[0].formatted_address, 'coords----->' ,results[0].geometry.location);
-      $scope.query_coords = [results[0].geometry.location.G, results[0].geometry.location.K];
-      console.log($scope.query_coords);
-    });
-  }
-
 });
-
-
