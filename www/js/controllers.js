@@ -164,31 +164,26 @@ angular.module('starter.controllers', [])
     if(!$scope.center_coords){
       console.log('My current location is X:' + $scope.myLocation.lat + ', Y: ' + $scope.myLocation.lng);
 
-      var request = {request: {
-        latitude: $scope.myLocation.lat,
-        longitude: $scope.myLocation.lng
-      }}
-
-      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
-        console.log(response);
-      }).catch(function(response){
-        console.log(response);
-      })
+      sendPickupRequest($scope.myLocation.lat, $scope.myLocation.lng);
 
     } else{
       console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
 
-      var request = {request: {
-        latitude: $scope.center_coords.G,
-        longitude: $scope.center_coords.K
-      }};
-
-      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
-        console.log(response);
-      }).catch(function(response){
-        console.log(response);
-      })
+      sendPickupRequest($scope.center_coords.G, $scope.center_coords.K);
 
     }
+  }
+
+  function sendPickupRequest(lat, lng){
+    var request = {request: {
+      latitude: lat,
+      longitude: lng
+    }};
+
+    $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+      console.log(response);
+    }).catch(function(response){
+      console.log(response);
+    })
   }
 });
