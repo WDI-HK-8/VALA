@@ -73,10 +73,10 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
+.controller('homeCtrl', function($scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $timeout) {
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
+  $scope.addressDisplay = 'Where to park?';
   $scope.myLocation = {
       lng : '',
       lat: ''
@@ -104,8 +104,21 @@ angular.module('starter.controllers', [])
       $scope.mapConfig = { 
         events: {
           center_changed: function(a, b, c){
-            $scope.center_coords = a.data.map.center;
-            console.log($scope.center_coords);
+          $scope.center_coords = a.data.map.center;
+          console.log($scope.center_coords);
+          },
+          dragend: function(){
+            $timeout(function(){
+
+              var latlng = {lat: $scope.center_coords.G, 
+                lng: $scope.center_coords.K
+              };
+              var geocoder = new google.maps.Geocoder();
+              geocoder.geocode({'location': latlng}, function(results){
+                console.log(results[0].formatted_address);
+                $scope.$apply($scope.addressDisplay = String(results[0].formatted_address));
+              })
+            }, 1500);
           }
         }
       };
@@ -180,10 +193,42 @@ angular.module('starter.controllers', [])
       longitude: lng
     }};
 
+    $ionicLoading.show({
+      template: 'Loading...'
+    });
+
     $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
       console.log(response);
+      $ionicLoading.hide();
     }).catch(function(response){
       console.log(response);
+      $ionicLoading.hide();
+      $ionicPopup.alert({
+        title: 'There was an error in your request.',
+        template: 'Please try again later.'
+      });
+
     })
+  }
+})
+
+.controller('profileCtrl', function($scope, $auth, $http, $window, $state) {
+
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  $scope.personalForm = {};
+  $scope.carForm      = {};
+
+  $scope.editPersonalInfo = function(form){
+    // check for nulls
+    console.log(form);
+  }
+
+  $scope.editCarInfo = function(form){
+    console.log(form);
+  }
+
+  function editUserRequest(formType){
+    $http.put('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser, editForm)
   }
 });

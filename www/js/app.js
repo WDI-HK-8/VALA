@@ -42,7 +42,8 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
       url: '/profile',
       views: {
         'menuContent': {
-          templateUrl: 'templates/menu/profile.html'
+          templateUrl: 'templates/menu/profile.html',
+          controller: 'profileCtrl'
         }
       }
   })
@@ -66,6 +67,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
 
   .state('app.landing', { //CONTROLLER: LOGIN() 
     url: '/landing',
+    cache: false,
     views: {
       'menuContent': {
         templateUrl: 'templates/landing_page.html',
