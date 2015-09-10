@@ -75,13 +75,16 @@ angular.module('starter.controllers', [])
 
 .controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
 
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
   $scope.myLocation = {
       lng : '',
       lat: ''
   };
-
-
-       
+  // plot 
+  // $http.get('http://vala-api.herokuapp.com/api/v1/users/')
+  
+  // fed into navigator to create the map
   $scope.drawMap = function(position) {
  
     //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
@@ -106,7 +109,7 @@ angular.module('starter.controllers', [])
           }
         }
       };
-      
+
       $scope.currentLocation = {
         id: 0,
         coords: {
@@ -158,9 +161,34 @@ angular.module('starter.controllers', [])
   navigator.geolocation.getCurrentPosition($scope.drawMap);
 
   $scope.sendCenterLocation = function(){
-    console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
+    if(!$scope.center_coords){
+      console.log('My current location is X:' + $scope.myLocation.lat + ', Y: ' + $scope.myLocation.lng);
+
+      var request = {request: {
+        latitude: $scope.myLocation.lat,
+        longitude: $scope.myLocation.lng
+      }}
+
+      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+        console.log(response);
+      }).catch(function(response){
+        console.log(response);
+      })
+
+    } else{
+      console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
+
+      var request = {request: {
+        latitude: $scope.center_coords.G,
+        longitude: $scope.center_coords.K
+      }};
+
+      $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+        console.log(response);
+      }).catch(function(response){
+        console.log(response);
+      })
+
+    }
   }
-
 });
-
-

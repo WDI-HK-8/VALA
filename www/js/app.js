@@ -125,7 +125,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/landing');
   $authProvider.configure({
-    apiUrl:                 'http://localhost:3000' || 'http://vala-api.herokuapp.com',
+    apiUrl:                 'http://vala-api.herokuapp.com' || 'http://localhost:3000',
     emailSignInPath:        '/auth/sign_in',
     emailRegistrationPath:  '/auth',
     signOutUrl:             '/auth/sign_out',
@@ -134,11 +134,3 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   });
 });
 
-// valaApp.factory('currentUser', ['$scope', function($scope){
-//   var x = {};
-//   // var validateUser = function(response){
-//   //   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user')) 
-//   //   $window.localStorage.setItem('current-user', JSON.stringify(response));
-//   // }
-//   return x;
-// }]);
