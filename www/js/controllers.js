@@ -80,12 +80,16 @@ angular.module('starter.controllers', [])
       lat: ''
   };
 
-  $scope.map = { 
+  $scope.mapConfig = { 
     center: { 
       latitude: 45, 
       longitude: -73 
     }, 
-    zoom: 8 
+    zoom: 8,
+    events: {
+      center_changed: function(a, b, c){console.log(a.data.map.center)}
+    }
+
   };
 
        
@@ -101,28 +105,82 @@ angular.module('starter.controllers', [])
           latitude: $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
         },
-        zoom: 14,
-        pan: 1
+        zoom: 10,
+        pan: 2
       };
- 
-      $scope.marker = {
+
+      $scope.currentLocation = {
         id: 0,
         coords: {
           latitude: $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
+        },
+        options: {
+          animation: google.maps.Animation.BOUNCE,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+        }
+      };
+
+     
+
+      // this needs to show valet in area
+      $scope.marker = {
+        id: "self",
+        coords: {
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng
+        },
+        options: {
+          animation: google.maps.Animation.BOUNCE,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
         }
       }; 
-       
-      $scope.marker.options = {
-        draggable: false,
-        labelContent: "lat: " + $scope.marker.coords.latitude + '<br/> ' + 'lon: ' + $scope.marker.coords.longitude,
-        labelAnchor: "80 120",
-        labelClass: "marker-labels"
-      };  
+      
+      // this needs to show valet in area
+      $scope.userPickupMarkers = [
+        {
+          id: "1",
+          title: "you",
+          latitude: $scope.myLocation.lat,
+          longitude: $scope.myLocation.lng,
+          icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
+        }
+      ];
+
+      $scope.events = {
+        center_changed: function(a, b, c){console.log(a,b,c);}
+      };
+
     });
   }
- 
+
+  // where the map is initiated and called
   navigator.geolocation.getCurrentPosition($scope.drawMap);
+  navigator.geolocation.getCurrentPosition(function(position){
+    $scope.coordinates = {
+      lat: position.coords.latitude, 
+      lng: position.coords.longitude
+    };
+  });
+
+  $scope.sendCurrentLocation = function(){
+    console.log($scope.coordinates);
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({'location': $scope.coordinates}, function(results, status){
+      console.log(results);
+    });
+    // send out http put request to location
+  }
+
+  $scope.sendPickupLocation = function(query){
+    // console.log(query);
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({'address': query + ', Hong Kong'}, function(results, status){
+      console.log('query----->', results[0].formatted_address, 'coords----->' ,results[0].geometry.location);
+      $scope.query_coords = [results[0].geometry.location.G, results[0].geometry.location.K];
+      console.log($scope.query_coords);
+    });
+  }
 
 });
 
