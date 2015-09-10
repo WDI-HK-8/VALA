@@ -80,17 +80,6 @@ angular.module('starter.controllers', [])
       lat: ''
   };
 
-  $scope.mapConfig = { 
-    center: { 
-      latitude: 45, 
-      longitude: -73 
-    }, 
-    zoom: 8,
-    events: {
-      center_changed: function(a, b, c){console.log(a.data.map.center)}
-    }
-
-  };
 
        
   $scope.drawMap = function(position) {
@@ -109,6 +98,15 @@ angular.module('starter.controllers', [])
         pan: 2
       };
 
+      $scope.mapConfig = { 
+        events: {
+          center_changed: function(a, b, c){
+            $scope.center_coords = a.data.map.center;
+            console.log($scope.center_coords);
+          }
+        }
+      };
+      
       $scope.currentLocation = {
         id: 0,
         coords: {
@@ -148,7 +146,9 @@ angular.module('starter.controllers', [])
       ];
 
       $scope.events = {
-        center_changed: function(a, b, c){console.log(a,b,c);}
+        center_changed: function(a, b, c){
+          console.log(a,b,c);
+        }
       };
 
     });
@@ -156,30 +156,9 @@ angular.module('starter.controllers', [])
 
   // where the map is initiated and called
   navigator.geolocation.getCurrentPosition($scope.drawMap);
-  navigator.geolocation.getCurrentPosition(function(position){
-    $scope.coordinates = {
-      lat: position.coords.latitude, 
-      lng: position.coords.longitude
-    };
-  });
 
-  $scope.sendCurrentLocation = function(){
-    console.log($scope.coordinates);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'location': $scope.coordinates}, function(results, status){
-      console.log(results);
-    });
-    // send out http put request to location
-  }
-
-  $scope.sendPickupLocation = function(query){
-    // console.log(query);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'address': query + ', Hong Kong'}, function(results, status){
-      console.log('query----->', results[0].formatted_address, 'coords----->' ,results[0].geometry.location);
-      $scope.query_coords = [results[0].geometry.location.G, results[0].geometry.location.K];
-      console.log($scope.query_coords);
-    });
+  $scope.sendCenterLocation = function(){
+    console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
   }
 
 });
