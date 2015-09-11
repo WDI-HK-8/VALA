@@ -4,7 +4,7 @@ angular.module('starter.controllers', [])
   // controls the display of hamburger navicon
 
   var validateUser = function(){
-    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'))
+    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
     console.log($scope.currentUser);
       if ($scope.currentUser != null){
         $state.go('app.home');
@@ -12,7 +12,6 @@ angular.module('starter.controllers', [])
         $state.go('app.landing');
       }
   }
-
   validateUser(); //gets the current user everytime the navbar is loaded
 
   $scope.signout = function(){
@@ -29,16 +28,13 @@ angular.module('starter.controllers', [])
   $scope.car_exist = null;
 
   $scope.signin = function(){
+    // ng-token-auth send http auth request to sign_in
     $auth.submitLogin($scope.signinForm).then(function(response){
-      console.log(response);
-      JSON.parse($window.localStorage.setItem('current-user', JSON.stringify(response)));
-      console.log($scope.currentUser);
-      // set current user item
-      console.log();
-      if ($scope.car_exist == null){
-        $state.go('app.add_vehicle');
-      }
-
+      // store global current-user
+      $window.localStorage.setItem('current-user', JSON.stringify(response));
+      $scope.currentUser = response;
+      // check if user has car already
+      response.car_license_plate ? $state.go('app.home') : $state.go('app.add_vehicle');
     }).catch(function(response){
       console.log(response);
     })
@@ -80,7 +76,6 @@ angular.module('starter.controllers', [])
 .controller('addPaymentCtrl', function($scope, $auth, $http, $window, $state) {
   $scope.goToHome = function(){
     $state.go('app.home');
-    console.log('go home!');
   }
 })
 
@@ -168,14 +163,14 @@ angular.module('starter.controllers', [])
       templateUrl: 'templates/notification/waiting_request_page.html',
     });
 
-    $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+    $http.post('http://localhost:3000/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
       console.log(response);
       $scope.requestMade = true;
       $scope.LastRequestId = response.data.id;
+      $ionicLoading.hide();
       console.log($scope.LastRequestId);
     }).catch(function(response){
       console.log(response);
-      $ionicLoading.hide();
       $ionicPopup.alert({
         title: 'There was an error in your request.',
         template: 'Please try again later.'
@@ -186,8 +181,9 @@ angular.module('starter.controllers', [])
 
   $scope.cancelRequest = function(){
     console.log('cancelRequest');
-    $http.put('http://vala-api.herokuapp.com/api/v1/requests/'+ $scope.LastRequestId).then(function(response){
+    $http.put('http://localhost:3000/api/v1/requests/'+ $scope.LastRequestId).then(function(response){
       console.log(response);
+      $ionicLoading.hide();
       $scope.requestMade = false;
     }).catch(function(response){
       console.log(response);

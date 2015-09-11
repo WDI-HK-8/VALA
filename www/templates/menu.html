@@ -5,7 +5,7 @@
       </ion-nav-back-button>
 
       <ion-nav-buttons side="left" >
-        <button class="button button-icon button-clear ion-navicon" menu-toggle="left" ng-hide="currentUser == null">
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left" ng-hide="!currentUser">
         </button>
       </ion-nav-buttons>
     </ion-nav-bar>
@@ -30,7 +30,7 @@
         <ion-item menu-close href="#/app/support">
           Support
         </ion-item>
-        <ion-item menu-close ng-click="signout()">
+        <ion-item menu-close ng-click="signout()" ng-show="currentUser">
           Signout
         </ion-item>
       </ion-list>
