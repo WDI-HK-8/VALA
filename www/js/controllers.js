@@ -161,27 +161,25 @@ angular.module('starter.controllers', [])
 
     $ionicLoading.show({
       templateUrl: 'templates/notification/waiting_request_page.html',
+      scope: $scope
     });
 
     $http.post('http://localhost:3000/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
-      console.log(response);
-      $scope.requestMade = true;
       $scope.LastRequestId = response.data.id;
-      $ionicLoading.hide();
+      $scope.requestMade = true;
       console.log($scope.LastRequestId);
     }).catch(function(response){
       console.log(response);
+      $ionicLoading.hide();
       $ionicPopup.alert({
         title: 'There was an error in your request.',
         template: 'Please try again later.'
       });
-
     })
   }
 
   $scope.cancelRequest = function(){
-    console.log('cancelRequest');
-    $http.put('http://localhost:3000/api/v1/requests/'+ $scope.LastRequestId).then(function(response){
+    $http.put('http://localhost:3000/api/v1/requests/'+ $scope.LastRequestId + '/cancel_request').then(function(response){
       console.log(response);
       $ionicLoading.hide();
       $scope.requestMade = false;
