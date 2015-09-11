@@ -1,38 +1,47 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $auth, $window, $http, $state) {
+.controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
-
   var validateUser = function(){
-    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'))
-      console.log($scope.currentUser.uid + ' is logged in.');
-      if ($scope.currentUser != null){
-        $state.go('app.home')
+    console.log(CtrlService.getUser());
+    $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
+      if (CtrlService.getUser() != null){
+        $state.go('app.home');
+      } else{
+        $state.go('app.landing');
       }
   }
+  validateUser(); 
 
-  validateUser(); //gets the current user
+  $scope.signout = function(){
+    CtrlService.clearUser();
+    $state.go('app.landing');
+  }
 
-})
+  $scope.signinForm     = {};
 
-.controller('landingCtrl', function($scope, $auth, $http, $window, $state) {
-  $scope.signinForm = {};
-
-  $scope.car_exist = false;
-
-  $scope.signin = function(){
+  $scope.signin         = function(){
+    // ng-token-auth send http auth request to sign_in
     $auth.submitLogin($scope.signinForm).then(function(response){
-      console.log(response);
-      $window.localStorage.setItem('current-user', JSON.stringify(response));
-      // set current user item
-      if ($scope.car_exist == false){
-        $state.go('app.add_vehicle');
-      }
-
+      // store global current-user
+      CtrlService.setUser(response);
+      CtrlService.currentUser = CtrlService.getUser();
+      validateUser();
+      // check if user has car already
+      response.car_license_plate ? $state.go('app.home') : $state.go('app.add_vehicle');
     }).catch(function(response){
       console.log(response);
     })
   }
+  
+
+})
+
+.controller('landingCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
+  $scope.addressDisplay = ''
+  // reset car_exist
+  $scope.car_exist      = null;
+
 })
 
 .controller('signupCtrl', function($scope, $auth, $http, $state) {
@@ -41,6 +50,7 @@ angular.module('starter.controllers', [])
   $scope.signup = function(){
     $auth.submitRegistration($scope.signupForm).then(function(response){
       console.log(response);
+      // notify users they have signed up and to check their inbox
       $state.go('app.landing');
       
     }).catch(function(response){
@@ -49,14 +59,14 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('addVehicleCtrl', function($scope, $auth, $http, $window, $state) {
+.controller('addVehicleCtrl', function($scope, $http, $window, $state, CtrlService) {
   $scope.carForm = {};
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-  console.log($scope.currentUser.id);
+  console.log(CtrlService.currentUser.id);
 
   $scope.addVehicle = function(){
-    console.log($scope.currentUser.id);
-    $http.put('http://localhost:3000/api/v1/users/'+$scope.currentUser.id, $scope.carForm).then(function(response){
+    console.log(CtrlService.currentUser.id);
+    $http.put(CtrlService.urlFactory('users/')+CtrlService.currentUser.id, $scope.carForm)
+    .then(function(response){
       console.log(response);
       $state.go('app.payment');
 
@@ -66,33 +76,13 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('addPaymentCtrl', function($scope, $auth, $http, $window, $state) {
-  $scope.goToHome = function(){
-    $state.go('app.home');
-    console.log('go home!');
-  }
-})
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup) {
 
-.controller('homeCtrl', function($scope, $auth, $http, $window, $state) {
-
-  $scope.myLocation = {
-      lng : '',
-      lat: ''
-  };
-
-  $scope.mapConfig = { 
-    center: { 
-      latitude: 45, 
-      longitude: -73 
-    }, 
-    zoom: 8,
-    events: {
-      center_changed: function(a, b, c){console.log(a.data.map.center)}
-    }
-
-  };
-
-       
+  $scope.requestMade    = false;
+  $scope.addressDisplay = 'Where to park?';
+  $scope.myLocation     = {};
+  
+  // fed into navigator to create the map
   $scope.drawMap = function(position) {
  
     //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
@@ -102,86 +92,136 @@ angular.module('starter.controllers', [])
  
       $scope.map = {
         center: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
+          latitude:   $scope.myLocation.lat,
+          longitude:  $scope.myLocation.lng
         },
-        zoom: 10,
+        zoom: 13,
         pan: 2
       };
 
+      $scope.mapConfig = { 
+        events: {
+          center_changed: function(a, b, c){
+            $scope.center_coords = a.data.map.center;
+          },
+          dragend: function(){
+            var latlng = {
+              lat: $scope.center_coords.G, 
+              lng: $scope.center_coords.K
+            };
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+              'location': latlng}, function(results){
+              console.log(results[0].formatted_address);
+              // scope apply error -- delayed scope apply
+              $scope.addressDisplay = String(results[0].formatted_address);
+            });
+          }
+        }
+      };
+      // ng-repeat on an array of markers. Add this into an empty array to prepare for displaying. Push on trigger.
       $scope.currentLocation = {
         id: 0,
         coords: {
-          latitude: $scope.myLocation.lat,
+          latitude:  $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
         },
         options: {
           animation: google.maps.Animation.BOUNCE,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+          icon:      'img/curr_loc_pin.png'            
         }
       };
-
-     
-
-      // this needs to show valet in area
-      $scope.marker = {
-        id: "self",
-        coords: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        options: {
-          animation: google.maps.Animation.BOUNCE,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
-        }
-      }; 
-      
-      // this needs to show valet in area
-      $scope.userPickupMarkers = [
-        {
-          id: "1",
-          title: "you",
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
-        }
-      ];
-
-      $scope.events = {
-        center_changed: function(a, b, c){console.log(a,b,c);}
-      };
-
     });
   }
 
   // where the map is initiated and called
   navigator.geolocation.getCurrentPosition($scope.drawMap);
-  navigator.geolocation.getCurrentPosition(function(position){
-    $scope.coordinates = {
-      lat: position.coords.latitude, 
-      lng: position.coords.longitude
+
+  $scope.sendCenterLocation = function(){
+    var lat = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
+    var lng = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    sendPickupRequest(lat, lng);
+  }
+
+  function sendPickupRequest(lat, lng){
+    var request = {
+      request: {
+        latitude: lat,
+        longitude: lng
+      }
     };
-  });
 
-  $scope.sendCurrentLocation = function(){
-    console.log($scope.coordinates);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'location': $scope.coordinates}, function(results, status){
-      console.log(results);
+    $ionicLoading.show({
+      templateUrl: 'templates/notification/waiting_request_page.html',
+      scope: $scope
     });
-    // send out http put request to location
+
+    $http.post(CtrlService.urlFactory('users/'+ CtrlService.currentUser.id +'/requests'), request)
+    .then(function(response){
+      $scope.LastRequestId = response.data.id;
+      $scope.requestMade = true;
+      console.log($scope.LastRequestId);
+    })
+    .catch(function(response){
+      console.log(response);
+      $ionicLoading.hide();
+      $ionicPopup.alert({
+        title: 'There was an error in your request.',
+        template: 'Please try again later.'
+      });
+    })
   }
 
-  $scope.sendPickupLocation = function(query){
-    // console.log(query);
-    var geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'address': query + ', Hong Kong'}, function(results, status){
-      console.log('query----->', results[0].formatted_address, 'coords----->' ,results[0].geometry.location);
-      $scope.query_coords = [results[0].geometry.location.G, results[0].geometry.location.K];
-      console.log($scope.query_coords);
-    });
+  $scope.cancelRequest = function(){
+    $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
+    .then(function(response){
+      console.log(response);
+      $ionicLoading.hide();
+      $scope.requestMade = false;
+    })
+    .catch(function(response){
+      console.log(response);
+    })
+  }
+})
+
+.controller('profileCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
+
+  $scope.personalForm = {};
+  $scope.carForm      = {};
+
+  $scope.editPersonalInfo = function(form){
+    // check for nulls
+    console.log(form);
   }
 
+  $scope.editCarInfo = function(form){
+    console.log(form);
+  }
+
+  function editUserRequest(formType){
+    $http.put(CtrlService.urlFactory('users/')+ CtrlService.currentUser, editForm)
+  }
+})
+
+.service('CtrlService', function($window){
+
+  this.currentUser;
+
+  this.urlFactory = function(params){
+    return 'http://vala-api.herokuapp.com/api/v1/'+ params;
+  }
+  this.setUser = function(response){
+    $window.localStorage.setItem('current-user', JSON.stringify(response));
+  }
+
+  this.getUser = function(){
+    return JSON.parse($window.localStorage.getItem('current-user'));
+  }
+
+  this.clearUser = function(){
+    $window.localStorage.setItem('current-user', null);
+  }
+
+  // this is returned
 });
-
-

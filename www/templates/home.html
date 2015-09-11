@@ -1,29 +1,21 @@
-<ion-view view-title="Request a Valet">
-  <ion-content data-tap-disabled="true">
-    <form class="item item-input" ng-submit="sendPickupLocation(query)">
-      <i class="icon ion-search placeholder-icon"></i>
-      <input type="text" ng-model="query" placeholder="Search">
-    </form>
-    {{mapConfig}}
+<ion-view view-title="{{addressDisplay}}">
+  <ion-content data-tap-disabled="true" scroll="false">
+    <img id="center_pin" src="img/center_pin.svg.png">
     <ui-gmap-google-map 
-      id="map" 
+      id    ="map" 
       center='map.center'
       events= 'mapConfig.events'
-      zoom='map.zoom'>
-      <!-- <ui-gmap-markers 
-         models  = "userPickupMarkers"
-         coords  = "'self'"
-         icon    = "'icon'">
-      </ui-gmap-markers> -->
+      zoom  ='map.zoom'>
+      
       <ui-gmap-marker
         coords = "currentLocation.coords"
-        idkey = "currentLocation.id">
+        idkey  = "currentLocation.id"
+        options= "currentLocation.options">
       </ui-gmap-marker>
-
     </ui-gmap-google-map>
 
-    <ion-footer-bar class="bar bar-footer">
-      <button class="button button-large button-full button-assertive" ng-click="sendCurrentLocation()"> Request a Valet</button>
-    </ion-footer-bar>
+    <div class="bar bar-footer bar-assertive">
+      <button class="bar bar-footer button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a valet</button>
+    </div>
   </ion-content>
 </ion-view>
