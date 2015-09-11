@@ -5,13 +5,21 @@ angular.module('starter.controllers', [])
 
   var validateUser = function(){
     $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'))
-      console.log($scope.currentUser.uid + ' is logged in.');
+    console.log($scope.currentUser);
       if ($scope.currentUser != null){
-        $state.go('app.home')
+        $state.go('app.home');
+      } else{
+        $state.go('app.landing');
       }
   }
 
-  validateUser(); //gets the current user
+  validateUser(); //gets the current user everytime the navbar is loaded
+
+  $scope.signout = function(){
+    $window.localStorage.clear();
+    $scope.currentUser = null;
+    $state.go('app.landing');
+  }
 
 })
 
@@ -41,6 +49,7 @@ angular.module('starter.controllers', [])
   $scope.signup = function(){
     $auth.submitRegistration($scope.signupForm).then(function(response){
       console.log(response);
+      // notify users they have signed up and to check their inbox
       $state.go('app.landing');
       
     }).catch(function(response){
@@ -76,6 +85,7 @@ angular.module('starter.controllers', [])
 .controller('homeCtrl', function($scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $timeout) {
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  $scope.requestMade = false;
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation = {
       lng : '',
@@ -97,7 +107,7 @@ angular.module('starter.controllers', [])
           latitude: $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
         },
-        zoom: 10,
+        zoom: 13,
         pan: 2
       };
 
@@ -105,20 +115,18 @@ angular.module('starter.controllers', [])
         events: {
           center_changed: function(a, b, c){
           $scope.center_coords = a.data.map.center;
-          console.log($scope.center_coords);
+          // console.log($scope.center_coords);
           },
           dragend: function(){
-            $timeout(function(){
-
-              var latlng = {lat: $scope.center_coords.G, 
-                lng: $scope.center_coords.K
-              };
-              var geocoder = new google.maps.Geocoder();
-              geocoder.geocode({'location': latlng}, function(results){
-                console.log(results[0].formatted_address);
-                $scope.$apply($scope.addressDisplay = String(results[0].formatted_address));
-              })
-            }, 1500);
+            var latlng = {lat: $scope.center_coords.G, 
+              lng: $scope.center_coords.K
+            };
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({'location': latlng}, function(results){
+              console.log(results[0].formatted_address);
+              // scope apply error
+              $scope.addressDisplay = String(results[0].formatted_address);
+            });
           }
         }
       };
@@ -194,12 +202,14 @@ angular.module('starter.controllers', [])
     }};
 
     $ionicLoading.show({
-      template: 'Loading...'
+      templateUrl: 'templates/notification/waiting_request_page.html',
     });
 
     $http.post('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
       console.log(response);
-      $ionicLoading.hide();
+      $scope.requestMade = true;
+      $scope.LastRequestId = response.data.id;
+      console.log($scope.LastRequestId);
     }).catch(function(response){
       console.log(response);
       $ionicLoading.hide();
@@ -208,6 +218,16 @@ angular.module('starter.controllers', [])
         template: 'Please try again later.'
       });
 
+    })
+  }
+
+  $scope.cancelRequest = function(){
+    console.log('cancelRequest');
+    $http.put('http://vala-api.herokuapp.com/api/v1/requests/'+ $scope.LastRequestId).then(function(response){
+      console.log(response);
+      $scope.requestMade = false;
+    }).catch(function(response){
+      console.log(response);
     })
   }
 })

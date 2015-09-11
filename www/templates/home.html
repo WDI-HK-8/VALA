@@ -6,11 +6,7 @@
       center='map.center'
       events= 'mapConfig.events'
       zoom='map.zoom'>
-      <!-- <ui-gmap-markers 
-         models  = "userPickupMarkers"
-         coords  = "'self'"
-         icon    = "'icon'">
-      </ui-gmap-markers> -->
+      
       <ui-gmap-marker
         coords = "currentLocation.coords"
         idkey = "currentLocation.id">
@@ -18,6 +14,7 @@
 
     </ui-gmap-google-map>
 
-    <button class="button button-large button-full button-assertive" ng-click="sendCenterLocation()" style="margin: 0;"> Request a Valet</button>
+    <button class="button button-large button-full button-assertive" ng-click="sendCenterLocation()" ng-show="requestMade != true" style="margin: 0;"> Request a valet</button>
+    <button class="button button-large button-full button-assertive" ng-click="cancelRequest()" ng-hide="requestMade != true" style="margin: 0;"> Cancel valet request</button>
   </ion-content>
 </ion-view>
