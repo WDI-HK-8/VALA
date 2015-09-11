@@ -1,4 +1,11 @@
 /* Empty. Add your own CSS if you like */
 .angular-google-map-container { 
-  height: 82vh; 
+  height: 90vh; 
+}
+
+#center_pin{
+  position:fixed;
+  z-index: 1000;
+  left:49%;
+  top:46%;
 }
