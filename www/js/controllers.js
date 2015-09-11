@@ -2,11 +2,10 @@ angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
-
   var validateUser = function(){
-    console.log(CtrlService.currentUser);
-      if (CtrlService.currentUser != null){
-        $scope.currentUser = CtrlService.currentUser; //set value to show hamburger menu
+    console.log(CtrlService.getUser());
+    $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
+      if (CtrlService.getUser() != null){
         $state.go('app.home');
       } else{
         $state.go('app.landing');
@@ -15,29 +14,34 @@ angular.module('starter.controllers', [])
   validateUser(); 
 
   $scope.signout = function(){
-    CtrlService.currentUser = null;
+    CtrlService.clearUser();
     $state.go('app.landing');
   }
 
-})
+  $scope.signinForm     = {};
 
-.controller('landingCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
-  $scope.signinForm = {};
-  // reset car_exist
-  $scope.car_exist = null;
-
-  $scope.signin = function(){
+  $scope.signin         = function(){
     // ng-token-auth send http auth request to sign_in
     $auth.submitLogin($scope.signinForm).then(function(response){
       // store global current-user
-      CtrlService.currentUser = response;
-      $scope.currentUser = CtrlService.currentUser; 
+      CtrlService.setUser(response);
+      CtrlService.currentUser = CtrlService.getUser();
+      validateUser();
       // check if user has car already
       response.car_license_plate ? $state.go('app.home') : $state.go('app.add_vehicle');
     }).catch(function(response){
       console.log(response);
     })
   }
+  
+
+})
+
+.controller('landingCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
+  $scope.addressDisplay = ''
+  // reset car_exist
+  $scope.car_exist      = null;
+
 })
 
 .controller('signupCtrl', function($scope, $auth, $http, $state) {
@@ -115,7 +119,7 @@ angular.module('starter.controllers', [])
           }
         }
       };
-
+      // ng-repeat on an array of markers. Add this into an empty array to prepare for displaying. Push on trigger.
       $scope.currentLocation = {
         id: 0,
         coords: {
@@ -200,14 +204,24 @@ angular.module('starter.controllers', [])
   }
 })
 
-.service('CtrlService', function(){
+.service('CtrlService', function($window){
+
+  this.currentUser;
 
   this.urlFactory = function(params){
     return 'http://vala-api.herokuapp.com/api/v1/'+ params;
   }
-  // always initiate user as not-logged in on startup!
-  this.currentUser = null;
+  this.setUser = function(response){
+    $window.localStorage.setItem('current-user', JSON.stringify(response));
+  }
 
-  // maybe add get item here also
+  this.getUser = function(){
+    return JSON.parse($window.localStorage.getItem('current-user'));
+  }
+
+  this.clearUser = function(){
+    $window.localStorage.setItem('current-user', null);
+  }
+
   // this is returned
 });
