@@ -1,29 +1,20 @@
-<ion-nav-view>
   <ion-header-bar>
-  <div bar bar-header bar-positive>
-    <h1 class="title">Vala Login</h1>
-  </div>
   </ion-header-bar>
-  <ion-content>
+  <ion-content has-header="true">
     <form ng-submit="signin()">
-      <div class="list">
-        <label class="item item-input">
+      <div class="list padding">
+        <h1 class="item text-center item-dark">Vala Login</h1>
+        <label class="item item-input padding">
           <span class="input-label">Email</span>
           <input type="text" ng-model="signinForm.email">
         </label>
-        <label class="item item-input">
+        <label class="item item-input padding">
           <span class="input-label">Password</span>
           <input type="password" ng-model="signinForm.password">
         </label>
-        <label class="item item-input">
-          <button class="button button-block button-positive" type="submit">Log in</button>
-        </label>
+          <button class="button button-block button-stable" type="submit">Log in</button>
       </div>
     </form>
-    <h2 class="list">New to Vala?</h2>
-    <label class="item item-input">
-      <!--  -->
-      <button ui-sref="app.signup" class="button button-block button-positive">Sign up</button>
-    </label>
+    <h3 class="list padding text-center">New to Vala?</h3>
+    <button ui-sref="app.signup" class="button button-block button-stable">Sign up</button>
   </ion-content>
-</ion-nav-view>

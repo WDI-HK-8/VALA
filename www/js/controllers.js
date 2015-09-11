@@ -1,28 +1,27 @@
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout, $auth, $window, $http, $state) {
+.controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
 
   var validateUser = function(){
-    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-    console.log($scope.currentUser);
-      if ($scope.currentUser != null){
+    console.log(CtrlService.currentUser);
+      if (CtrlService.currentUser != null){
+        $scope.currentUser = CtrlService.currentUser; //set value to show hamburger menu
         $state.go('app.home');
       } else{
         $state.go('app.landing');
       }
   }
-  validateUser(); //gets the current user everytime the navbar is loaded
+  validateUser(); 
 
   $scope.signout = function(){
-    $window.localStorage.clear();
-    $scope.currentUser = null;
+    CtrlService.currentUser = null;
     $state.go('app.landing');
   }
 
 })
 
-.controller('landingCtrl', function($scope, $auth, $http, $window, $state) {
+.controller('landingCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
   $scope.signinForm = {};
   // reset car_exist
   $scope.car_exist = null;
@@ -31,8 +30,8 @@ angular.module('starter.controllers', [])
     // ng-token-auth send http auth request to sign_in
     $auth.submitLogin($scope.signinForm).then(function(response){
       // store global current-user
-      $window.localStorage.setItem('current-user', JSON.stringify(response));
-      $scope.currentUser = response;
+      CtrlService.currentUser = response;
+      $scope.currentUser = CtrlService.currentUser; 
       // check if user has car already
       response.car_license_plate ? $state.go('app.home') : $state.go('app.add_vehicle');
     }).catch(function(response){
@@ -56,14 +55,14 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('addVehicleCtrl', function($scope, $auth, $http, $window, $state) {
+.controller('addVehicleCtrl', function($scope, $http, $window, $state, CtrlService) {
   $scope.carForm = {};
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-  console.log($scope.currentUser.id);
+  console.log(CtrlService.currentUser.id);
 
   $scope.addVehicle = function(){
-    console.log($scope.currentUser.id);
-    $http.put('http://localhost:3000/api/v1/users/'+$scope.currentUser.id, $scope.carForm).then(function(response){
+    console.log(CtrlService.currentUser.id);
+    $http.put(CtrlService.urlFactory('users/')+CtrlService.currentUser.id, $scope.carForm)
+    .then(function(response){
       console.log(response);
       $state.go('app.payment');
 
@@ -73,23 +72,11 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('addPaymentCtrl', function($scope, $auth, $http, $window, $state) {
-  $scope.goToHome = function(){
-    $state.go('app.home');
-  }
-})
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup) {
 
-.controller('homeCtrl', function($scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $timeout) {
-
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-  $scope.requestMade = false;
+  $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
-  $scope.myLocation = {
-      lng : '',
-      lat: ''
-  };
-  // plot 
-  // $http.get('http://vala-api.herokuapp.com/api/v1/users/')
+  $scope.myLocation     = {};
   
   // fed into navigator to create the map
   $scope.drawMap = function(position) {
@@ -101,8 +88,8 @@ angular.module('starter.controllers', [])
  
       $scope.map = {
         center: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
+          latitude:   $scope.myLocation.lat,
+          longitude:  $scope.myLocation.lng
         },
         zoom: 13,
         pan: 2
@@ -111,17 +98,18 @@ angular.module('starter.controllers', [])
       $scope.mapConfig = { 
         events: {
           center_changed: function(a, b, c){
-          $scope.center_coords = a.data.map.center;
-          // console.log($scope.center_coords);
+            $scope.center_coords = a.data.map.center;
           },
           dragend: function(){
-            var latlng = {lat: $scope.center_coords.G, 
+            var latlng = {
+              lat: $scope.center_coords.G, 
               lng: $scope.center_coords.K
             };
             var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({'location': latlng}, function(results){
+            geocoder.geocode({
+              'location': latlng}, function(results){
               console.log(results[0].formatted_address);
-              // scope apply error
+              // scope apply error -- delayed scope apply
               $scope.addressDisplay = String(results[0].formatted_address);
             });
           }
@@ -131,12 +119,12 @@ angular.module('starter.controllers', [])
       $scope.currentLocation = {
         id: 0,
         coords: {
-          latitude: $scope.myLocation.lat,
+          latitude:  $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
         },
         options: {
           animation: google.maps.Animation.BOUNCE,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+          icon:      'img/curr_loc_pin.png'            
         }
       };
     });
@@ -164,11 +152,13 @@ angular.module('starter.controllers', [])
       scope: $scope
     });
 
-    $http.post('http://localhost:3000/api/v1/users/'+ $scope.currentUser.id+'/requests', request).then(function(response){
+    $http.post(CtrlService.urlFactory('users/'+ CtrlService.currentUser.id +'/requests'), request)
+    .then(function(response){
       $scope.LastRequestId = response.data.id;
       $scope.requestMade = true;
       console.log($scope.LastRequestId);
-    }).catch(function(response){
+    })
+    .catch(function(response){
       console.log(response);
       $ionicLoading.hide();
       $ionicPopup.alert({
@@ -179,19 +169,19 @@ angular.module('starter.controllers', [])
   }
 
   $scope.cancelRequest = function(){
-    $http.put('http://localhost:3000/api/v1/requests/'+ $scope.LastRequestId + '/cancel_request').then(function(response){
+    $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
+    .then(function(response){
       console.log(response);
       $ionicLoading.hide();
       $scope.requestMade = false;
-    }).catch(function(response){
+    })
+    .catch(function(response){
       console.log(response);
     })
   }
 })
 
-.controller('profileCtrl', function($scope, $auth, $http, $window, $state) {
-
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+.controller('profileCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
 
   $scope.personalForm = {};
   $scope.carForm      = {};
@@ -206,6 +196,18 @@ angular.module('starter.controllers', [])
   }
 
   function editUserRequest(formType){
-    $http.put('http://vala-api.herokuapp.com/api/v1/users/'+ $scope.currentUser, editForm)
+    $http.put(CtrlService.urlFactory('users/')+ CtrlService.currentUser, editForm)
   }
+})
+
+.service('CtrlService', function(){
+
+  this.urlFactory = function(params){
+    return 'http://vala-api.herokuapp.com/api/v1/'+ params;
+  }
+  // always initiate user as not-logged in on startup!
+  this.currentUser = null;
+
+  // maybe add get item here also
+  // this is returned
 });

@@ -30,6 +30,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
 
   .state('app.home', {
     url: '/home',
+    cache: false,
     views: {
       'menuContent': {
         templateUrl: 'templates/home.html',
@@ -67,6 +68,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
 
   .state('app.landing', { //CONTROLLER: LOGIN() 
     url: '/landing',
+    cache: false,
     views: {
       'menuContent': {
         templateUrl: 'templates/landing_page.html',
@@ -95,10 +97,10 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   })
   .state('app.payment', {
     url: '/payment',
+    cache: false,
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/payment_page.html',
-        controller: 'addPaymentCtrl'
+        templateUrl: 'templates/registration/payment_page.html'
       }
     }
   })
@@ -127,7 +129,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   // 'http://vala-api.herokuapp.com' || 
   $urlRouterProvider.otherwise('/app/landing');
   $authProvider.configure({
-    apiUrl:                 'http://localhost:3000',
+    apiUrl:                 'http://vala-api.herokuapp.com',
     emailSignInPath:        '/auth/sign_in',
     emailRegistrationPath:  '/auth',
     signOutUrl:             '/auth/sign_out',
