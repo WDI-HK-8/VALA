@@ -1,6 +1,6 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'uiGmapgoogle-maps'])
+var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'uiGmapgoogle-maps', 'ngCordova'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
