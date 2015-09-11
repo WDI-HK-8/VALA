@@ -25,15 +25,17 @@ angular.module('starter.controllers', [])
 
 .controller('landingCtrl', function($scope, $auth, $http, $window, $state) {
   $scope.signinForm = {};
-
-  $scope.car_exist = false;
+  // reset car_exist
+  $scope.car_exist = null;
 
   $scope.signin = function(){
     $auth.submitLogin($scope.signinForm).then(function(response){
       console.log(response);
-      $window.localStorage.setItem('current-user', JSON.stringify(response));
+      JSON.parse($window.localStorage.setItem('current-user', JSON.stringify(response)));
+      console.log($scope.currentUser);
       // set current user item
-      if ($scope.car_exist == false){
+      console.log();
+      if ($scope.car_exist == null){
         $state.go('app.add_vehicle');
       }
 
@@ -142,39 +144,6 @@ angular.module('starter.controllers', [])
           icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
         }
       };
-
-     
-
-      // this needs to show valet in area
-      $scope.marker = {
-        id: "self",
-        coords: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        options: {
-          animation: google.maps.Animation.BOUNCE,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
-        }
-      }; 
-      
-      // this needs to show valet in area
-      $scope.userPickupMarkers = [
-        {
-          id: "1",
-          title: "you",
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng,
-          icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png'
-        }
-      ];
-
-      $scope.events = {
-        center_changed: function(a, b, c){
-          console.log(a,b,c);
-        }
-      };
-
     });
   }
 
@@ -182,24 +151,18 @@ angular.module('starter.controllers', [])
   navigator.geolocation.getCurrentPosition($scope.drawMap);
 
   $scope.sendCenterLocation = function(){
-    if(!$scope.center_coords){
-      console.log('My current location is X:' + $scope.myLocation.lat + ', Y: ' + $scope.myLocation.lng);
-
-      sendPickupRequest($scope.myLocation.lat, $scope.myLocation.lng);
-
-    } else{
-      console.log('I selected location X:' + $scope.center_coords.G + ', Y:' + $scope.center_coords.K);
-
-      sendPickupRequest($scope.center_coords.G, $scope.center_coords.K);
-
-    }
+    var lat = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
+    var lng = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    sendPickupRequest(lat, lng);
   }
 
   function sendPickupRequest(lat, lng){
-    var request = {request: {
-      latitude: lat,
-      longitude: lng
-    }};
+    var request = {
+      request: {
+        latitude: lat,
+        longitude: lng
+      }
+    };
 
     $ionicLoading.show({
       templateUrl: 'templates/notification/waiting_request_page.html',
