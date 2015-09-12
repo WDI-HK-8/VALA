@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['ionic'])
 
 .controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
@@ -76,7 +76,7 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup) {
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicPopover) {
 
   $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
@@ -119,6 +119,8 @@ angular.module('starter.controllers', [])
   $scope.sendCenterLocation = function(){
     var lat = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
     var lng = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    $scope.lat = lat;
+    $scope.lng = lng;
     sendPickupRequest(lat, lng);
   }
 
@@ -169,24 +171,46 @@ angular.module('starter.controllers', [])
     .then(function(response){
       console.log(response);
       $ionicLoading.hide()
-      // TEMP PARKING LOCATION
-      var myLatlng = {
+      
+      var valetLatlng = {
         lat: Number(response.data.parking_location.latitude),
         lng: Number(response.data.parking_location.longitude)
-      } 
-      $scope.showValetPosMarker(myLatlng);
+      }
+      // PICKUP LOCATION
+      var userLatlng  = {
+        lat: $scope.lat,
+        lng: $scope.lng
+      };  
+      // Place pins on map of valet location, AND SELECTED LOCATION
+      $scope.showMarker(valetLatlng);
+      $scope.showMarker(userLatlng);
+
+      // show valet information
+      $ionicPopover.fromTemplateUrl('templates/notification/pickup_page.html', {
+        scope: $scope
+      }).then(function(popover){ //if there is a popover...
+        $scope.popover = popover;
+        $scope.popover.show();
+      })
+
     })
     .catch(function(response){
       console.log(response);
     })
   }
 
-  $scope.showValetPosMarker = function(myLatlng){
-    console.log(myLatlng);
+  // $scope.hide = function(){
+  //   $ionicLoading.hide();
+  // };
+
+  $scope.showMarker = function(Latlng){
+    console.log(Latlng);
     var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: $scope.map,
-      visible: true
+      position: Latlng,
+      map:      $scope.map,
+      visible:  true,
+      icon:     'img/curr_loc_pin.png',
+      animation: google.maps.Animation.DROP
     });
   }
 })
