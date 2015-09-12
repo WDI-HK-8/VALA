@@ -76,7 +76,7 @@ angular.module('starter.controllers', ['ionic'])
   }
 })
 
-.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicPopover) {
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal) {
 
   $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
@@ -171,37 +171,46 @@ angular.module('starter.controllers', ['ionic'])
     .then(function(response){
       console.log(response);
       $ionicLoading.hide()
-      
-      var valetLatlng = {
+      $scope.valet = response;
+      $scope.valetLatlng = {
         lat: Number(response.data.parking_location.latitude),
         lng: Number(response.data.parking_location.longitude)
       }
       // PICKUP LOCATION
-      var userLatlng  = {
+      $scope.userLatlng  = {
         lat: $scope.lat,
         lng: $scope.lng
       };  
       // Place pins on map of valet location, AND SELECTED LOCATION
-      $scope.showMarker(valetLatlng);
-      $scope.showMarker(userLatlng);
 
       // show valet information
-      $ionicPopover.fromTemplateUrl('templates/notification/pickup_page.html', {
-        scope: $scope
-      }).then(function(popover){ //if there is a popover...
-        $scope.popover = popover;
-        $scope.popover.show();
-      })
-
+      $scope.openModal();
     })
     .catch(function(response){
       console.log(response);
     })
   }
 
-  // $scope.hide = function(){
-  //   $ionicLoading.hide();
-  // };
+  $ionicModal.fromTemplateUrl('templates/notification/pickup_page.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  })
+
+  $scope.openModal = function() {
+    $scope.modal.show()
+  }
+
+  $scope.closeModal = function() {
+    $scope.showMarker($scope.valetLatlng);
+    $scope.showMarker($scope.userLatlng);
+    $scope.modal.hide();
+  };
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
 
   $scope.showMarker = function(Latlng){
     console.log(Latlng);
