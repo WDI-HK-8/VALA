@@ -1,19 +1,7 @@
-<ion-view view-title="{{addressDisplay}}">
+<ion-view view-title= {{addressDisplay}}>
   <ion-content data-tap-disabled="true" scroll="false">
     <img id="center_pin" src="img/center_pin.svg.png">
-    <ui-gmap-google-map 
-      id    ="map" 
-      center='map.center'
-      events= 'mapConfig.events'
-      zoom  ='map.zoom'>
-      
-      <ui-gmap-marker
-        coords = "currentLocation.coords"
-        idkey  = "currentLocation.id"
-        options= "currentLocation.options">
-      </ui-gmap-marker>
-    </ui-gmap-google-map>
-
+    <div id="map" style="height: 100%"></div>
     <div class="bar bar-footer bar-assertive">
       <button class="bar bar-footer button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a valet</button>
     </div>

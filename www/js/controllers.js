@@ -3,7 +3,7 @@ angular.module('starter.controllers', [])
 .controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
   var validateUser = function(){
-    console.log(CtrlService.getUser());
+    console.log('CURRENT USER---->', CtrlService.getUser());
     $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
       if (CtrlService.getUser() != null){
         $state.go('app.home');
@@ -81,61 +81,40 @@ angular.module('starter.controllers', [])
   $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation     = {};
-  
-  // fed into navigator to create the map
-  $scope.drawMap = function(position) {
- 
-    //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
-    $scope.$apply(function() {
-      $scope.myLocation.lng = position.coords.longitude;
-      $scope.myLocation.lat = position.coords.latitude;
- 
-      $scope.map = {
-        center: {
-          latitude:   $scope.myLocation.lat,
-          longitude:  $scope.myLocation.lng
-        },
-        zoom: 13,
-        pan: 2
-      };
 
-      $scope.mapConfig = { 
-        events: {
-          center_changed: function(a, b, c){
-            $scope.center_coords = a.data.map.center;
-          },
-          dragend: function(){
-            var latlng = {
-              lat: $scope.center_coords.G, 
-              lng: $scope.center_coords.K
-            };
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({
-              'location': latlng}, function(results){
-              console.log(results[0].formatted_address);
-              // scope apply error -- delayed scope apply
-              $scope.addressDisplay = String(results[0].formatted_address);
-            });
-          }
-        }
+
+  $scope.map;
+  var geocoder = new google.maps.Geocoder();
+  var valet_btn = document.getElementById('valetResponse');
+  //get current location
+  navigator.geolocation.getCurrentPosition(function(response){
+    $scope.myLocation.lat = response.coords.latitude;
+    $scope.myLocation.lng = response.coords.longitude;
+    // map only loads after current location is retrieved and stored
+    initMap();
+  });
+  
+  function initMap() {
+    $scope.map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: $scope.myLocation.lat, lng: $scope.myLocation.lng},
+      zoom: 13
+    });
+
+    $scope.map.addListener('center_changed', function() {
+      $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
+    });
+
+    $scope.map.addListener('dragend', function(){
+      var latlng = {
+        lat: $scope.center_coords.G, 
+        lng: $scope.center_coords.K
       };
-      // ng-repeat on an array of markers. Add this into an empty array to prepare for displaying. Push on trigger.
-      $scope.currentLocation = {
-        id: 0,
-        coords: {
-          latitude:  $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        options: {
-          animation: google.maps.Animation.BOUNCE,
-          icon:      'img/curr_loc_pin.png'            
-        }
-      };
+      geocoder.geocode({'location': latlng}, function(results){
+        console.log(results[0].formatted_address);
+        // $scope.$apply($scope.addressDisplay = results[0].formatted_address);
+      });
     });
   }
-
-  // where the map is initiated and called
-  navigator.geolocation.getCurrentPosition($scope.drawMap);
 
   $scope.sendCenterLocation = function(){
     var lat = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
@@ -156,7 +135,8 @@ angular.module('starter.controllers', [])
       scope: $scope
     });
 
-    $http.post(CtrlService.urlFactory('users/'+ CtrlService.currentUser.id +'/requests'), request)
+    // create a request by the user
+    $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
       $scope.LastRequestId = response.data.id;
       $scope.requestMade = true;
@@ -171,8 +151,8 @@ angular.module('starter.controllers', [])
       });
     })
   }
-
   $scope.cancelRequest = function(){
+    // void a request by the user
     $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
     .then(function(response){
       console.log(response);
@@ -182,6 +162,32 @@ angular.module('starter.controllers', [])
     .catch(function(response){
       console.log(response);
     })
+  }
+  //ASSIGNS VALET #2 to CREATED REQUEST ONLY
+  $scope.valetAcceptRequest = function(){
+    $http.put(CtrlService.urlFactory('valets/2/requests/' + $scope.LastRequestId +'/valet_pick_up'))
+    .then(function(response){
+      console.log(response);
+      $ionicLoading.hide()
+      // TEMP PARKING LOCATION
+      var myLatlng = {
+        lat: Number(response.data.parking_location.latitude),
+        lng: Number(response.data.parking_location.longitude)
+      } 
+      $scope.showValetPosMarker(myLatlng);
+    })
+    .catch(function(response){
+      console.log(response);
+    })
+  }
+
+  $scope.showValetPosMarker = function(myLatlng){
+    console.log(myLatlng);
+    var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: $scope.map,
+      visible: true
+    });
   }
 })
 
