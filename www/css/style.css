@@ -1,4 +1,20 @@
 /* Empty. Add your own CSS if you like */
+
+#landing_img{
+  width: 40%;
+  max-width: 300px;
+  top: 10vh;
+  margin: 20px 20px 10px 20px;
+}
+
+#landing_logo{
+  margin-bottom: 20px
+}
+
+#signupFooter{
+  border-top: 1px solid #DDDEE8;
+}
+
 .angular-google-map-container { 
   height: 100vh; 
 }
@@ -10,9 +26,11 @@
   top:49%;
 }
 
-#valetFooter{
-  height: 10vh;
+#pickupBar{
+  padding: 0px;
+  height: 8vh;
 }
+
 #valetAuth{
   position: absolute;
   bottom: 12vh;
@@ -25,4 +43,27 @@
 
 #call_btn{
   width:40%;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src:  url('../fonts/lato/Lato-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Lato-Regular';
+  src:  url('../fonts/lato/Lato-Regular.ttf') format('truetype');
+}
+
+body, h1, a, h3, h4{
+  font-family: 'Lato', Fallback, sans-serif;
+}
+
+.button{
+  font-family: 'Lato-Regular', Fallback, sans-serif;
+  font-size: 20px;
+}
+
+small{
+  font-size: 18px;
 }

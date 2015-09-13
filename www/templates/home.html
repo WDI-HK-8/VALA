@@ -3,10 +3,10 @@
   <ion-content data-tap-disabled="true" scroll="false">
     <img id="center_pin" src="img/center_pin.svg.png">
     <div id="map" style="height: 100%"></div>
-    <div class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
+    <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
       <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a car pickup</button>
     </div>
-    <div class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
+    <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
       <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
     </div>
     <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup">
@@ -22,12 +22,14 @@
       </div>
     </div>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
-      <button class="button button-light button-large col col-70 item item-avatar">
-          <img src="http://placehold.it/150x150">
-          <h2>James</h2>
+      <button class="button button-light button-large col col-60 item item-avatar">
+          <img src="img/valet_pickup.png">
+          <h2>{{valet.first_name}}</h2>
           <p>Vala Agent</p>
       </button>
-      <button id="call_btn" class="list item ion-ios-telephone button button-light button-large">Call</button>
+      <button id="call_btn" class="list item button button-positive button-large">
+        <i class="icon ion-ios-telephone">
+      </button>
     </div>
   </ion-content>
 </ion-view>

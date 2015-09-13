@@ -12,10 +12,13 @@ angular.module('starter.controllers', ['ionic'])
         $state.go('app.landing');
       }
   }
+
   $scope.$watch(validateUser()); 
+  $scope.$watch($scope.currentUser); 
 
   $scope.signout = function(){
     CtrlService.clearUser();
+    $scope.$apply;
     $state.go('app.landing');
   }
 
@@ -79,21 +82,22 @@ angular.module('starter.controllers', ['ionic'])
 
 .controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices) {
 
-  $scope.requestMade    = false;
+  console.log($scope);
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation     = {};
+  $scope.requestMade    = false;
+  $scope.pickup         = false;
+  $scope.dropoff        = false;
   $scope.map;
-  $scope.pickup  = false;
-  $scope.dropoff  = false;
   var marker;
   var watchId;
 
   if(navigator.geolocation){
 
     var option  = {
-      enableHighAccuracy: true,
-      timeout           : Infinity,
-      maximumAge        : 0             
+      enableHighAccuracy: false,
+      timeout           : 5000,
+      maximumAge        : 5000             
     };
     
     var success = function(response){ //response is position
@@ -110,15 +114,15 @@ angular.module('starter.controllers', ['ionic'])
         mapTypeId: google.maps.MapTypeId.ROADMAP
       };
 
-      initMap(mapOptions); //draws map...again?
+      initMap(mapOptions); //draws map
     };
     var fail    = function(response){
       console.log(response);
     };
 
-    //fetches new location on location change
-    // var watchId = 
     navigator.geolocation.watchPosition(success, fail, option);
+    // var watchId = 
+    //fetches new location on location change
     // navigator.geolocation.clearWatch(watchId);
   } else {
     alert('Geolocation not supported.');
@@ -170,27 +174,38 @@ angular.module('starter.controllers', ['ionic'])
       noBackdrop: false
     });
 
-    // create a request by the user
+    // CREATE A REQUEST
     $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
-      $scope.LastRequestId = response.data.id;
+      $scope.requestMade    = true;
+      $scope.LastRequestId  = response.data.id;
       console.log('--->', $scope.LastRequestId);
+      // REAL-TIME SOCKET
       PrivatePubServices.subscribe('/user/'+ response.data.id);
       PrivatePub.subscribe('/user/'+ response.data.id, function(data, channel) {
       
         // ON VALET RESPONSE SUCCESS
         console.log('--->', data);
         $ionicLoading.hide() 
-        $scope.requestMade    = true;
-        $scope.$parent.pickup = true;
 
         // PICKUP LOCATION
         $scope.userLatlng     = {
           lat: $scope.lat,
           lng: $scope.lng
         };  
-        // Drop pin of user pickup location
+        // Drop pin of car pickup location
         $scope.showMarker($scope.userLatlng);
+        $scope.pickup         = true;
+
+        //prepare valet information
+        $scope.valet                 = {}
+        $scope.valet.first_name      = data.first_name;
+        $scope.valet.last_name       = data.last_name;
+        $scope.valet.phone_number    = data.phone_number;
+        $scope.valet.profile_picture = data.profile_picture;
+        $scope.valet.email           = data.email;
+        console.log($scope);
+
         // show valet information
         $scope.openModal();
       });
@@ -204,12 +219,12 @@ angular.module('starter.controllers', ['ionic'])
       });
     })
   }
+  // show cancel button only when request is created
   $scope.cancelRequest = function(){
     $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
     .then(function(response){
       console.log(response);
       $ionicLoading.hide();
-      $scope.requestMade = false;
     })
     .catch(function(response){
       console.log(response);
@@ -234,11 +249,11 @@ angular.module('starter.controllers', ['ionic'])
   $scope.showMarker = function(Latlng){
     console.log(Latlng);
     var marker = new google.maps.Marker({
-      position: Latlng,
-      map:      $scope.map,
-      visible:  true,
-      icon:     'img/curr_loc_pin.png',
-      animation: google.maps.Animation.DROP
+      position  : Latlng,
+      map       : $scope.map,
+      visible   : true,
+      icon      : 'img/curr_loc_pin.png',
+      animation : google.maps.Animation.DROP
     });
   }
 
@@ -251,9 +266,19 @@ angular.module('starter.controllers', ['ionic'])
 
     $http.put(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests/' + $scope.LastRequestId +'/car_pick_up'), input)
     .then(function(response){
+      // TRANSITION TO DROPOFF CYCLE
       $scope.pickup   = false;
       $scope.dropoff  = true;
       console.log(response, $scope);
+      $ionicLoading.show({
+        templateUrl: 'templates/notification/waiting_request_page.html',
+        scope: $scope,
+        noBackdrop: false
+      });
+
+      // UNSUBSCRIBE FROM CHANNEL WHEN THERE IS A "PARKED" RESP
+      // Add this to next cycle, when the notification of parked is complete
+      $scope.addressDisplay = 'Where to pickup?';
     })
     .catch(function(response){
       console.log(response);
