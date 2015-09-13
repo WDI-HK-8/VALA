@@ -77,7 +77,7 @@ angular.module('starter.controllers', ['ionic'])
   }
 })
 
-.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal) {
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices) {
 
   $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
@@ -150,8 +150,8 @@ angular.module('starter.controllers', ['ionic'])
   }
 
   $scope.sendCenterLocation = function(){
-    var lat = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
-    var lng = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    var lat    = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
+    var lng    = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
     $scope.lat = lat;
     $scope.lng = lng;
     sendPickupRequest(lat, lng);
@@ -164,7 +164,6 @@ angular.module('starter.controllers', ['ionic'])
         longitude: lng
       }
     };
-
     $ionicLoading.show({
       templateUrl: 'templates/notification/waiting_request_page.html',
       scope: $scope,
@@ -175,12 +174,30 @@ angular.module('starter.controllers', ['ionic'])
     $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
       $scope.LastRequestId = response.data.id;
-      $scope.requestMade = true;
-      console.log($scope.LastRequestId);
+      console.log('--->', $scope.LastRequestId);
+      PrivatePubServices.subscribe('/user/'+ response.data.id);
+      PrivatePub.subscribe('/user/'+ response.data.id, function(data, channel) {
+      
+        // ON VALET RESPONSE SUCCESS
+        console.log('--->', data);
+        $ionicLoading.hide() 
+        $scope.requestMade    = true;
+        $scope.$parent.pickup = true;
+
+        // PICKUP LOCATION
+        $scope.userLatlng     = {
+          lat: $scope.lat,
+          lng: $scope.lng
+        };  
+        // Drop pin of user pickup location
+        $scope.showMarker($scope.userLatlng);
+        // show valet information
+        $scope.openModal();
+      });
     })
     .catch(function(response){
       console.log(response);
-      $ionicLoading.closeModal();
+      $ionicLoading.hide();
       $ionicPopup.alert({
         title: 'There was an error in your request.',
         template: 'Please try again later.'
@@ -188,37 +205,11 @@ angular.module('starter.controllers', ['ionic'])
     })
   }
   $scope.cancelRequest = function(){
-    // void a request by the user
     $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
     .then(function(response){
       console.log(response);
-      $ionicLoading.closeModal();
+      $ionicLoading.hide();
       $scope.requestMade = false;
-    })
-    .catch(function(response){
-      console.log(response);
-    })
-  }
-
-  //ASSIGNS VALET #2 to CREATED REQUEST ONLY
-  $scope.valetAcceptRequest = function(){
-    $http.put(CtrlService.urlFactory('valets/2/requests/' + $scope.LastRequestId +'/valet_pick_up'))
-    .then(function(response){
-      console.log(response.data.auth_code);
-      $ionicLoading.hide()
-      $scope.$parent.pickup = true;
-      // VALET LOCATION
-      $scope.valetLatlng = {
-        lat: Number(response.data.parking_location.latitude),
-        lng: Number(response.data.parking_location.longitude)
-      }
-      // PICKUP LOCATION
-      $scope.userLatlng  = {
-        lat: $scope.lat,
-        lng: $scope.lng
-      };  
-      // show valet information
-      $scope.openModal();
     })
     .catch(function(response){
       console.log(response);
@@ -237,8 +228,6 @@ angular.module('starter.controllers', ['ionic'])
   }
 
   $scope.closeModal = function() {
-    $scope.showMarker($scope.valetLatlng);
-    $scope.showMarker($scope.userLatlng);
     $scope.modal.hide();
   };
 
