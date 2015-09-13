@@ -84,7 +84,6 @@ angular.module('starter.controllers', ['ionic'])
 
 
   $scope.map;
-  var geocoder = new google.maps.Geocoder();
   var valet_btn = document.getElementById('valetResponse');
   //get current location
   navigator.geolocation.getCurrentPosition(function(response){
@@ -94,7 +93,9 @@ angular.module('starter.controllers', ['ionic'])
     initMap();
   });
   
+  // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
   function initMap() {
+    console.log(this);
     $scope.map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: $scope.myLocation.lat, lng: $scope.myLocation.lng},
       zoom: 13
@@ -109,9 +110,10 @@ angular.module('starter.controllers', ['ionic'])
         lat: $scope.center_coords.G, 
         lng: $scope.center_coords.K
       };
+      var geocoder = new google.maps.Geocoder();
       geocoder.geocode({'location': latlng}, function(results){
         console.log(results[0].formatted_address);
-        // $scope.$apply($scope.addressDisplay = results[0].formatted_address);
+        $scope.$digest($scope.addressDisplay = results[0].formatted_address)
       });
     });
   }
@@ -134,7 +136,8 @@ angular.module('starter.controllers', ['ionic'])
 
     $ionicLoading.show({
       templateUrl: 'templates/notification/waiting_request_page.html',
-      scope: $scope
+      scope: $scope,
+      noBackdrop: false
     });
 
     // create a request by the user

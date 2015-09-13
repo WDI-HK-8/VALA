@@ -9,3 +9,12 @@
   left:49%;
   top:49%;
 }
+
+#valetFooter{
+  height: 10vh;
+}
+
+#call_btn{
+  height: auto;
+  font-size: 30px;
+}
