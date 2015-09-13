@@ -3,25 +3,32 @@
   <ion-content data-tap-disabled="true" scroll="false">
     <img id="center_pin" src="img/center_pin.svg.png">
     <div id="map" style="height: 100%"></div>
-    <div class="bar bar-footer bar-assertive">
-      <button class="bar bar-footer button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a valet</button>
+    <div class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a car pickup</button>
     </div>
-    <div class="bar bar-subfooter" ng-show="valet">
-      <input class="item item-input row" placeholder="Put Auth Code Here.">
+    <div class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
+    </div>
+    <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup">
+      <div class="list">
+        <div class="item item-input-inset">
+          <label class="item-input-wrapper">
+            <input type="text" placeholder="input code here" ng-model="codeInput">
+          </label>
+          <button class="button button-small" ng-click="sendAuthCode(codeInput)">
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
+      <button class="button button-light button-large col col-70 item item-avatar">
+          <img src="http://placehold.it/150x150">
+          <h2>James</h2>
+          <p>Vala Agent</p>
+      </button>
+      <button id="call_btn" class="list item ion-ios-telephone button button-light button-large">Call</button>
     </div>
   </ion-content>
 </ion-view>
-
-<!-- Valet InfoWindow -->
-<ion-footer-bar id="valetFooter" align-title="left" class="bar-dark" ng-show="valet">
-  <div class="list col col-50">
-    <a class="item item-avatar">
-      <img src="http://placehold.it/150x150">
-      <h2>James</h2>
-      <p>Vala Agent</p>
-    </a>
-  </div>
-  <button id="call_btn" class="ion-ios-telephone button button-light button-large button-block">Call</button>
-</ion-footer-bar>
-
 

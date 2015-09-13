@@ -13,8 +13,16 @@
 #valetFooter{
   height: 10vh;
 }
+#valetAuth{
+  position: absolute;
+  bottom: 12vh;
+}
 
-#call_btn{
+#call_btn, #pickupFooter{
   height: auto;
   font-size: 30px;
+}
+
+#call_btn{
+  width:40%;
 }

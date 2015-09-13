@@ -4,6 +4,7 @@ angular.module('starter.controllers', ['ionic'])
   // controls the display of hamburger navicon
   var validateUser = function(){
     $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
+    console.log($scope.currentUser);
     // console.log('CURRENT USER---->', $scope.currentUser);
       if ($scope.currentUser != null){
         $state.go('app.home');
@@ -82,7 +83,8 @@ angular.module('starter.controllers', ['ionic'])
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation     = {};
   $scope.map;
-  $scope.valet  = false;
+  $scope.pickup  = false;
+  $scope.dropoff  = false;
   var marker;
   var watchId;
 
@@ -178,7 +180,7 @@ angular.module('starter.controllers', ['ionic'])
     })
     .catch(function(response){
       console.log(response);
-      $ionicLoading.hide();
+      $ionicLoading.closeModal();
       $ionicPopup.alert({
         title: 'There was an error in your request.',
         template: 'Please try again later.'
@@ -190,7 +192,7 @@ angular.module('starter.controllers', ['ionic'])
     $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
     .then(function(response){
       console.log(response);
-      $ionicLoading.hide();
+      $ionicLoading.closeModal();
       $scope.requestMade = false;
     })
     .catch(function(response){
@@ -202,10 +204,9 @@ angular.module('starter.controllers', ['ionic'])
   $scope.valetAcceptRequest = function(){
     $http.put(CtrlService.urlFactory('valets/2/requests/' + $scope.LastRequestId +'/valet_pick_up'))
     .then(function(response){
-      console.log(response);
+      console.log(response.data.auth_code);
       $ionicLoading.hide()
-      $scope.$parent.valet = true;
-      console.log($scope);
+      $scope.$parent.pickup = true;
       // VALET LOCATION
       $scope.valetLatlng = {
         lat: Number(response.data.parking_location.latitude),
@@ -250,6 +251,24 @@ angular.module('starter.controllers', ['ionic'])
       icon:     'img/curr_loc_pin.png',
       animation: google.maps.Animation.DROP
     });
+  }
+
+  $scope.sendAuthCode = function(codeInput){
+    var input = {
+      request:{
+        auth_code: codeInput
+      }
+    };
+
+    $http.put(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests/' + $scope.LastRequestId +'/car_pick_up'), input)
+    .then(function(response){
+      $scope.pickup   = false;
+      $scope.dropoff  = true;
+      console.log(response, $scope);
+    })
+    .catch(function(response){
+      console.log(response);
+    })
   }
 })
 
