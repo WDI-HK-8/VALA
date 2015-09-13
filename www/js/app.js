@@ -1,6 +1,6 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'uiGmapgoogle-maps'])
+var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-token-auth', 'ngCordova'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -30,6 +30,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
 
   .state('app.home', {
     url: '/home',
+    cache: false,
     views: {
       'menuContent': {
         templateUrl: 'templates/home.html',
@@ -42,7 +43,8 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
       url: '/profile',
       views: {
         'menuContent': {
-          templateUrl: 'templates/menu/profile.html'
+          templateUrl: 'templates/menu/profile.html',
+          controller: 'profileCtrl'
         }
       }
   })
@@ -66,6 +68,7 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
 
   .state('app.landing', { //CONTROLLER: LOGIN() 
     url: '/landing',
+    cache: false,
     views: {
       'menuContent': {
         templateUrl: 'templates/landing_page.html',
@@ -94,10 +97,10 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   })
   .state('app.payment', {
     url: '/payment',
+    cache: false,
     views: {
       'menuContent': {
-        templateUrl: 'templates/registration/payment_page.html',
-        controller: 'addPaymentCtrl'
+        templateUrl: 'templates/registration/payment_page.html'
       }
     }
   })
@@ -123,9 +126,10 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
     }
   });
   // if none of the above states are matched, use this as the fallback
+  // 'http://vala-api.herokuapp.com' || 
   $urlRouterProvider.otherwise('/app/landing');
   $authProvider.configure({
-    apiUrl:                 'http://localhost:3000',
+    apiUrl:                 'http://vala-api.herokuapp.com',
     emailSignInPath:        '/auth/sign_in',
     emailRegistrationPath:  '/auth',
     signOutUrl:             '/auth/sign_out',
@@ -134,11 +138,3 @@ var valaApp = angular.module('starter', ['ionic', 'starter.controllers', 'ng-tok
   });
 });
 
-// valaApp.factory('currentUser', ['$scope', function($scope){
-//   var x = {};
-//   // var validateUser = function(response){
-//   //   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user')) 
-//   //   $window.localStorage.setItem('current-user', JSON.stringify(response));
-//   // }
-//   return x;
-// }]);

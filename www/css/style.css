@@ -1,4 +1,28 @@
 /* Empty. Add your own CSS if you like */
 .angular-google-map-container { 
-  height: 82vh; 
+  height: 100vh; 
+}
+
+#center_pin{
+  position:fixed;
+  z-index: 1000;
+  left:49%;
+  top:49%;
+}
+
+#valetFooter{
+  height: 10vh;
+}
+#valetAuth{
+  position: absolute;
+  bottom: 12vh;
+}
+
+#call_btn, #pickupFooter{
+  height: auto;
+  font-size: 30px;
+}
+
+#call_btn{
+  width:40%;
 }

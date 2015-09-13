@@ -1,29 +1,34 @@
-<ion-view view-title="Request a Valet">
-  <ion-content data-tap-disabled="true">
-    <form class="item item-input" ng-submit="sendPickupLocation(query)">
-      <i class="icon ion-search placeholder-icon"></i>
-      <input type="text" ng-model="query" placeholder="Search">
-    </form>
-    {{mapConfig}}
-    <ui-gmap-google-map 
-      id="map" 
-      center='map.center'
-      events= 'mapConfig.events'
-      zoom='map.zoom'>
-      <!-- <ui-gmap-markers 
-         models  = "userPickupMarkers"
-         coords  = "'self'"
-         icon    = "'icon'">
-      </ui-gmap-markers> -->
-      <ui-gmap-marker
-        coords = "currentLocation.coords"
-        idkey = "currentLocation.id">
-      </ui-gmap-marker>
-
-    </ui-gmap-google-map>
-
-    <ion-footer-bar class="bar bar-footer">
-      <button class="button button-large button-full button-assertive" ng-click="sendCurrentLocation()"> Request a Valet</button>
-    </ion-footer-bar>
+<ion-nav-view class=""></ion-nav-view>
+<ion-view view-title= {{addressDisplay}}>
+  <ion-content data-tap-disabled="true" scroll="false">
+    <img id="center_pin" src="img/center_pin.svg.png">
+    <div id="map" style="height: 100%"></div>
+    <div class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a car pickup</button>
+    </div>
+    <div class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
+    </div>
+    <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup">
+      <div class="list">
+        <div class="item item-input-inset">
+          <label class="item-input-wrapper">
+            <input type="text" placeholder="input code here" ng-model="codeInput">
+          </label>
+          <button class="button button-small" ng-click="sendAuthCode(codeInput)">
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
+      <button class="button button-light button-large col col-70 item item-avatar">
+          <img src="http://placehold.it/150x150">
+          <h2>James</h2>
+          <p>Vala Agent</p>
+      </button>
+      <button id="call_btn" class="list item ion-ios-telephone button button-light button-large">Call</button>
+    </div>
   </ion-content>
 </ion-view>
+
