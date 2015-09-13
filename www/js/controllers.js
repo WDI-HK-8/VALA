@@ -3,15 +3,15 @@ angular.module('starter.controllers', ['ionic'])
 .controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
   var validateUser = function(){
-    console.log('CURRENT USER---->', CtrlService.getUser());
     $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
-      if (CtrlService.getUser() != null){
+    console.log('CURRENT USER---->', $scope.currentUser);
+      if ($scope.currentUser != null){
         $state.go('app.home');
       } else{
         $state.go('app.landing');
       }
   }
-  validateUser(); 
+  $scope.$watch(validateUser()); 
 
   $scope.signout = function(){
     CtrlService.clearUser();
@@ -81,10 +81,9 @@ angular.module('starter.controllers', ['ionic'])
   $scope.requestMade    = false;
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation     = {};
-
-
   $scope.map;
-  var valet_btn = document.getElementById('valetResponse');
+  $scope.valet  = false;
+
   //get current location
   navigator.geolocation.getCurrentPosition(function(response){
     $scope.myLocation.lat = response.coords.latitude;
@@ -95,7 +94,6 @@ angular.module('starter.controllers', ['ionic'])
   
   // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
   function initMap() {
-    console.log(this);
     $scope.map = new google.maps.Map(document.getElementById('map'), {
       center: {lat: $scope.myLocation.lat, lng: $scope.myLocation.lng},
       zoom: 13
@@ -168,13 +166,16 @@ angular.module('starter.controllers', ['ionic'])
       console.log(response);
     })
   }
+
   //ASSIGNS VALET #2 to CREATED REQUEST ONLY
   $scope.valetAcceptRequest = function(){
     $http.put(CtrlService.urlFactory('valets/2/requests/' + $scope.LastRequestId +'/valet_pick_up'))
     .then(function(response){
       console.log(response);
       $ionicLoading.hide()
-      $scope.valet = response;
+      $scope.$parent.valet = true;
+      console.log($scope);
+      // VALET LOCATION
       $scope.valetLatlng = {
         lat: Number(response.data.parking_location.latitude),
         lng: Number(response.data.parking_location.longitude)
@@ -184,8 +185,6 @@ angular.module('starter.controllers', ['ionic'])
         lat: $scope.lat,
         lng: $scope.lng
       };  
-      // Place pins on map of valet location, AND SELECTED LOCATION
-
       // show valet information
       $scope.openModal();
     })
@@ -210,10 +209,6 @@ angular.module('starter.controllers', ['ionic'])
     $scope.showMarker($scope.userLatlng);
     $scope.modal.hide();
   };
-
-  $scope.$on('$destroy', function() {
-    $scope.modal.remove();
-  });
 
   $scope.showMarker = function(Latlng){
     console.log(Latlng);
