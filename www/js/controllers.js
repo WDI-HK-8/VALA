@@ -4,7 +4,7 @@ angular.module('starter.controllers', ['ionic'])
   // controls the display of hamburger navicon
   var validateUser = function(){
     $scope.currentUser = CtrlService.getUser(); //set value to show hamburger menu
-    console.log('CURRENT USER---->', $scope.currentUser);
+    // console.log('CURRENT USER---->', $scope.currentUser);
       if ($scope.currentUser != null){
         $state.go('app.home');
       } else{
@@ -83,22 +83,53 @@ angular.module('starter.controllers', ['ionic'])
   $scope.myLocation     = {};
   $scope.map;
   $scope.valet  = false;
+  var marker;
+  var watchId;
 
-  //get current location
-  navigator.geolocation.getCurrentPosition(function(response){
-    $scope.myLocation.lat = response.coords.latitude;
-    $scope.myLocation.lng = response.coords.longitude;
-    // map only loads after current location is retrieved and stored
-    initMap();
-  });
-  
+  if(navigator.geolocation){
+
+    var option  = {
+      enableHighAccuracy: true,
+      timeout           : Infinity,
+      maximumAge        : 0             
+    };
+    
+    var success = function(response){ //response is position
+      $scope.myLocation.lat = response.coords.latitude;
+      $scope.myLocation.lng = response.coords.longitude;
+      console.log($scope.myLocation.lat, $scope.myLocation.lng);
+      // this should reset current location
+      var mapOptions = {
+        center: {
+          lat: $scope.myLocation.lat, 
+          lng: $scope.myLocation.lng
+        },
+        zoom: 13,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+
+      initMap(mapOptions); //draws map...again?
+    };
+    var fail    = function(response){
+      console.log(response);
+    };
+
+    //fetches new location on location change
+    // var watchId = 
+    navigator.geolocation.watchPosition(success, fail, option);
+    // navigator.geolocation.clearWatch(watchId);
+  } else {
+    alert('Geolocation not supported.');
+  }
+
   // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
-  function initMap() {
-    $scope.map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: $scope.myLocation.lat, lng: $scope.myLocation.lng},
-      zoom: 13
-    });
+  function initMap(mapOptions) {
+    $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
+    marker = new google.maps.Marker({
+      position: mapOptions.center,
+      map: $scope.map
+    })
     $scope.map.addListener('center_changed', function() {
       $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
     });

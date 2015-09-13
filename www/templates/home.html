@@ -6,8 +6,13 @@
     <div class="bar bar-footer bar-assertive">
       <button class="bar bar-footer button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a valet</button>
     </div>
+    <div class="bar bar-subfooter" ng-show="valet">
+      <input class="item item-input row" placeholder="Put Auth Code Here.">
+    </div>
   </ion-content>
 </ion-view>
+
+<!-- Valet InfoWindow -->
 <ion-footer-bar id="valetFooter" align-title="left" class="bar-dark" ng-show="valet">
   <div class="list col col-50">
     <a class="item item-avatar">
@@ -18,4 +23,5 @@
   </div>
   <button id="call_btn" class="ion-ios-telephone button button-light button-large button-block">Call</button>
 </ion-footer-bar>
+
 
