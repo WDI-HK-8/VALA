@@ -201,6 +201,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     if($scope.LastRequestId && $scope.dropoff){ //if request id already exists and it's a dropoff...
       $http.put(CtrlService.urlFactory('users/'+$scope.currentUser.id+'/requests/'+$scope.LastRequestId + '/request_drop_off'), request)
       .then(function(response){
+        $scope.dropoff_request = true;
         console.log('Last Request ID--->', $scope.LastRequestId);
       })
       .catch(function(response){
@@ -263,13 +264,16 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $scope.latitude         = data.parking_spot.latitude;
         $scope.longitude        = data.parking_spot.longitude;
       } else {
-        $scope.dropoff_auth     = data.request.auth_code_drop_off;
+        $scope.delivery_auth    = data.request.auth_code;
       }
       console.log($scope);
 
       // open modal if request pickup is true
       if($scope.pickup){
         // Drop pin of car pickup location only if valet responds
+        $scope.openModal();
+      }
+      else if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
         $scope.openModal();
       }
       else { // code is entered
@@ -304,7 +308,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   })
 
   $scope.openModal = function() {
-    $scope.modal.show()
+    $scope.modal.show();
   }
 
   $scope.closeModal = function() {

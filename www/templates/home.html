@@ -10,8 +10,8 @@
     <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
       <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
     </div>
-    <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup && !dropoff" >
-      <div class="list">
+    <div id="valetAuth" class="bar bar-subfooter"  ng-show="pickup">
+      <div class="list" ng-show="pickup && !dropoff">
         <div class="item item-input-inset">
           <label class="item-input-wrapper">
             <input type="text" placeholder="input code here" ng-model="codeInput">
@@ -20,6 +20,10 @@
             Submit
           </button>
         </div>
+      </div>
+      <div class="list text-center" ng-show="!pickup && dropoff">
+        <h1>Car Retrieval Authentication Code: {{delivery_auth}}</h1>
+        <p>Please make sure you keep this passcode a secret.</p>
       </div>
     </div>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
