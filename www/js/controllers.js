@@ -82,7 +82,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
 
 .controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices, $cordovaGeolocation) {
 
-  console.log($scope);
   $scope.addressDisplay = 'Where to park?';
   $scope.myLocation     = {};
   $scope.requestMade    = false;
@@ -151,39 +150,36 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     alert('Geolocation not supported.');
   }
 
-  // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
   $window.initMap = function(mapOptions) {
     $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-    marker = new google.maps.Marker({
-      position: mapOptions.center,
-      map: $scope.map
+      marker  = new google.maps.Marker ({
+      position: mapOptions.center, //AKA my current position
+      map     : $scope.map,
+      icon    : 'img/curr_loc_pin.png'
     })
-    $scope.map.addListener('center_changed', function() {
-      $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
-    });
 
     $scope.map.addListener('dragend', function(){
-      var latlng = {
+      $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
+      console.log('dragend---> ', $scope.center_coords);
+      var latlng   = {
         lat: $scope.center_coords.G, 
         lng: $scope.center_coords.K
       };
+
       var geocoder = new google.maps.Geocoder();
-      geocoder.geocode({'location': latlng}, function(results){
-        console.log(results[0].formatted_address);
+      geocoder.geocode({
+        'location': latlng
+      }, function(results){
         $scope.$digest($scope.addressDisplay = results[0].formatted_address)
       });
     });
   }
   // Called by button click event
   $scope.sendCenterLocation = function(){
-    var lat    = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
-    var lng    = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
-    $scope.lat = lat;
-    $scope.lng = lng;
-    sendPickupRequest(lat, lng);
+    $scope.lat              = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
+    $scope.lng              = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    sendPickupRequest($scope.lat, $scope.lng);
   }
-
   function sendPickupRequest(lat, lng){
     var request = {
       request: {
@@ -191,22 +187,23 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         longitude: lng
       }
     };
-    console.log(request);
-
-    $ionicLoading.show({
-      templateUrl: 'templates/notification/waiting_request_page.html',
-      scope: $scope,
-      noBackdrop: false
-    });
+    console.log('Request Payload---->', request);
+    console.log($scope);
+    $scope.dropoff != true ? $scope.ionicLoadMsg = ' pickup ' : $scope.ionicLoadMsg = ' dropoff ';
+    console.log($scope.ionicLoadMsg);
+    // $ionicLoading.show({
+    //   templateUrl: 'templates/notification/waiting_request_page.html',
+    //   scope: $scope,
+    //   noBackdrop: false
+    // });
 
     // CREATE A REQUEST
     $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
       $scope.requestMade    = true;
       $scope.LastRequestId  = response.data.id;
+      console.log('Last Request ID--->', $scope.LastRequestId);
       $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
-      console.log('--->', $scope.LastRequestId);
-      
     })
     .catch(function(response){
       console.log(response);
@@ -261,16 +258,18 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       else { // code is entered
         $ionicLoading.hide();
       }
-
-      PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
-        console.log('unsubscribed');
-      })
+      if($scope.dropoff != true){
+        PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
+          console.log('unsubscribed');
+        });
+      }
     });
   }
   // show cancel button only when request is created
   $scope.cancelRequest = function(){
     $http.put(CtrlService.urlFactory('requests/'+ $scope.LastRequestId + '/cancel_request'))
     .then(function(response){
+      $scope.requestMade    = false;
       console.log(response);
       $ionicLoading.hide();
     })
@@ -324,11 +323,11 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       $scope.requestMade  = false;
       // Wait for response of "Parked" from valet
       $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
-      $ionicLoading.show({
-        templateUrl: 'templates/notification/waiting_parking_page.html',
-        scope: $scope,
-        noBackdrop: false
-      });
+      // $ionicLoading.show({
+      //   templateUrl: 'templates/notification/waiting_parking_page.html',
+      //   scope: $scope,
+      //   noBackdrop: false
+      // });
       console.log(response, $scope);
     })
     .catch(function(response){

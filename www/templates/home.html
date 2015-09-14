@@ -10,7 +10,7 @@
     <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
       <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
     </div>
-    <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup">
+    <div id="valetAuth" class="bar bar-subfooter" ng-show="pickup && !dropoff" >
       <div class="list">
         <div class="item item-input-inset">
           <label class="item-input-wrapper">
