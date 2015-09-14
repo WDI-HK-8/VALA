@@ -126,7 +126,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     var success = function(response){ //response is position
       $scope.myLocation.lat = response.coords.latitude;
       $scope.myLocation.lng = response.coords.longitude;
-      console.log($scope.myLocation.lat, $scope.myLocation.lng);
+      console.log('MY CURRENT LOCATION--->', $scope.myLocation.lat, $scope.myLocation.lng);
       // this should reset current location
       var mapOptions = {
         center: {
@@ -175,7 +175,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       });
     });
   }
-
+  // Called by button click event
   $scope.sendCenterLocation = function(){
     var lat    = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
     var lng    = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
@@ -191,6 +191,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         longitude: lng
       }
     };
+    console.log(request);
 
     $ionicLoading.show({
       templateUrl: 'templates/notification/waiting_request_page.html',
@@ -205,6 +206,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       $scope.LastRequestId  = response.data.id;
       $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
       console.log('--->', $scope.LastRequestId);
+      
     })
     .catch(function(response){
       console.log(response);
@@ -225,7 +227,14 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     
       // ON VALET RESPONSE SUCCESS
       console.log('--->', data);
-      $ionicLoading.hide() 
+      $ionicLoading.hide()
+
+      // MARKER POSITIONING
+      $scope.userLatlng = {
+        lat: $scope.lat,
+        lng: $scope.lng
+      };  
+      $scope.showMarker($scope.userLatlng); 
 
       $scope.requestMade ? $scope.pickup = true : $scope.pickup = false;
 
@@ -238,20 +247,15 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $scope.valet.valet_id   = data.valet.valet_id;
       } else {
         $scope.parking          = {};
-        $scope.parking          = data.parking_spot.address;
-        $scope.parking          = data.parking_spot.latitude;
-        $scope.parking          = data.parking_spot.longitude;
+        $scope.address          = data.parking_spot.address;
+        $scope.latitude         = data.parking_spot.latitude;
+        $scope.longitude        = data.parking_spot.longitude;
       }
       console.log($scope);
 
       // open modal if request pickup is true
       if($scope.pickup){
-        $scope.userLatlng = {
-          lat: $scope.lat,
-          lng: $scope.lng
-        };  
         // Drop pin of car pickup location only if valet responds
-        $scope.showMarker($scope.userLatlng);
         $scope.openModal();
       }
       else { // code is entered
@@ -287,11 +291,12 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   }
 
   $scope.closeModal = function() {
+
     $scope.modal.hide();
   };
 
   $scope.showMarker = function(Latlng){
-    console.log(Latlng, $scope.map);
+    console.log('---> Drop marker: ',Latlng, $scope.map);
     new google.maps.Marker({
       position  : Latlng,
       map       : $scope.map,
