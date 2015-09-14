@@ -110,8 +110,7 @@ angular.module('starter.controllers', ['ionic'])
           lat: $scope.myLocation.lat, 
           lng: $scope.myLocation.lng
         },
-        zoom: 13,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
+        zoom: 13
       };
 
       initMap(mapOptions); //draws map
@@ -120,7 +119,7 @@ angular.module('starter.controllers', ['ionic'])
       console.log(response);
     };
 
-    navigator.geolocation.watchPosition(success, fail, option);
+    navigator.geolocation.getCurrentPosition(success, fail, option);
     // var watchId = 
     //fetches new location on location change
     // navigator.geolocation.clearWatch(watchId);
@@ -129,7 +128,7 @@ angular.module('starter.controllers', ['ionic'])
   }
 
   // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
-  function initMap(mapOptions) {
+  window.initMap = function(mapOptions) {
     $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
     marker = new google.maps.Marker({
@@ -168,12 +167,12 @@ angular.module('starter.controllers', ['ionic'])
         longitude: lng
       }
     };
-    $ionicLoading.show({
-      templateUrl: 'templates/notification/waiting_request_page.html',
-      scope: $scope,
-      noBackdrop: false
-    });
-
+    // $ionicLoading.show({
+    //   templateUrl: 'templates/notification/waiting_request_page.html',
+    //   scope: $scope,
+    //   noBackdrop: true
+    // });
+      debugger
     // CREATE A REQUEST
     $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
@@ -181,7 +180,10 @@ angular.module('starter.controllers', ['ionic'])
       $scope.LastRequestId  = response.data.id;
       console.log('--->', $scope.LastRequestId);
       // REAL-TIME SOCKET
+      // Set subscription channel
+
       PrivatePubServices.subscribe('/user/'+ response.data.id);
+      // The listener to the subscription
       PrivatePub.subscribe('/user/'+ response.data.id, function(data, channel) {
       
         // ON VALET RESPONSE SUCCESS
@@ -257,6 +259,8 @@ angular.module('starter.controllers', ['ionic'])
     });
   }
 
+  // Add gmap script tag into home.html
+
   $scope.sendAuthCode = function(codeInput){
     var input = {
       request:{
@@ -271,14 +275,19 @@ angular.module('starter.controllers', ['ionic'])
       $scope.dropoff  = true;
       console.log(response, $scope);
       $ionicLoading.show({
-        templateUrl: 'templates/notification/waiting_request_page.html',
+        templateUrl: 'templates/notification/waiting_parking_page.html',
         scope: $scope,
         noBackdrop: false
       });
 
       // UNSUBSCRIBE FROM CHANNEL WHEN THERE IS A "PARKED" RESP
       // Add this to next cycle, when the notification of parked is complete
-      $scope.addressDisplay = 'Where to pickup?';
+      PrivatePubServices.unsubscribe('/user/'+ response.data.id);
+      // expects "parking" status???
+      PrivatePub.unsubscribe('/user/'+ response.data.id, function(data, channel){
+        $scope.addressDisplay = 'Where to pickup?';
+        
+      })
     })
     .catch(function(response){
       console.log(response);

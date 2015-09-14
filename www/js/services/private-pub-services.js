@@ -7,12 +7,20 @@ valaApp.service('PrivatePubServices', function() {
       signature: "dc1c71d3e959ebb6f49aa6af0c86304a0740088d",
       server: "https://vala-app-faye.herokuapp.com/faye"
     });
-  }
+  };
+
   x.logMessages = function(channel) {
     PrivatePub.subscribe(channel, function(data, channel) {
       console.log(channel);
       console.log(data);
     });
   };
+
+  x.unsubscribe = function (channel) {
+    PrivatePub.unsubscribe(channel, function(channel, callback){
+      console.log(channel);
+      console.log(data);
+    });
+  }
   return x;
 });
