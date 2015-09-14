@@ -198,21 +198,36 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     // });
 
     // CREATE A REQUEST
-    $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
-    .then(function(response){
-      $scope.requestMade    = true;
-      $scope.LastRequestId  = response.data.id;
-      console.log('Last Request ID--->', $scope.LastRequestId);
-      $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
-    })
-    .catch(function(response){
-      console.log(response);
-      $ionicLoading.hide();
-      $ionicPopup.alert({
-        title: 'There was an error in your request.',
-        template: 'Please try again later.'
-      });
-    })
+    if($scope.LastRequestId && $scope.dropoff){ //if request id already exists and it's a dropoff...
+      $http.put(CtrlService.urlFactory('users/'+$scope.currentUser.id+'/requests/'+$scope.LastRequestId + '/request_drop_off'), request)
+      .then(function(response){
+        console.log('Last Request ID--->', $scope.LastRequestId);
+      })
+      .catch(function(response){
+        console.log(response);
+        $ionicLoading.hide();
+        $ionicPopup.alert({
+          title: 'There was an error in your request.',
+          template: 'Please try again later.'
+        });
+      })
+    } else{
+      $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
+      .then(function(response){
+        $scope.requestMade    = true;
+        $scope.LastRequestId  = response.data.id;
+        console.log('Last Request ID--->', $scope.LastRequestId);
+        $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
+      })
+      .catch(function(response){
+        console.log(response);
+        $ionicLoading.hide();
+        $ionicPopup.alert({
+          title: 'There was an error in your request.',
+          template: 'Please try again later.'
+        });
+      })
+    }
   }
 
   $scope.subscribeChannel = function(user_response_id){
@@ -242,11 +257,13 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $scope.valet.phone      = data.valet.phone;
         $scope.valet.picture    = data.valet.picture;
         $scope.valet.valet_id   = data.valet.valet_id;
-      } else {
+      } else if (data.parking_spot) {
         $scope.parking          = {};
         $scope.address          = data.parking_spot.address;
         $scope.latitude         = data.parking_spot.latitude;
         $scope.longitude        = data.parking_spot.longitude;
+      } else {
+        $scope.dropoff_auth     = data.request.auth_code_drop_off;
       }
       console.log($scope);
 
@@ -258,7 +275,8 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       else { // code is entered
         $ionicLoading.hide();
       }
-      if($scope.dropoff != true){
+      // this is to keep the subscription open after valet answers to the dropoff request
+      if($scope.dropoff != true){ 
         PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
           console.log('unsubscribed');
         });
@@ -323,11 +341,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       $scope.requestMade  = false;
       // Wait for response of "Parked" from valet
       $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
-      // $ionicLoading.show({
-      //   templateUrl: 'templates/notification/waiting_parking_page.html',
-      //   scope: $scope,
-      //   noBackdrop: false
-      // });
+       
       console.log(response, $scope);
     })
     .catch(function(response){
