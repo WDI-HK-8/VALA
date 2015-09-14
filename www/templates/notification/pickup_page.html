@@ -1,25 +1,21 @@
 <div class="modal">
   <ion-header-bar>
-    <h1 class="title">Meet Your Valet, {{valet.first_name}}!</h1>
+    <h1 class="title">Meet Your Valet, {{valet.name}}!</h1>
   </ion-header-bar>
   <ion-content>
     <div class="list">
       <img class="item" src="img/valet_pickup.png">
       <label class="item item-input">
         <span class="input-label">Full Name:</span>
-        <p>{{valet.first_name}}&nbsp;{{valet.last_name}}</p>
+        <p>{{valet.name}}&nbsp;{{valet.name}}</p>
       </label>
       <label class="item item-input">
         <span class="input-label">Phone#:</span>
-        <p>{{valet.phone_number}}</p>
+        <p>{{valet.phone}}</p>
       </label>
       <label class="item item-input">
-        <span class="input-label">HKID:</span>
-        <p>{{valet.HKID}}</p>
-      </label>
-      <label class="item item-input">
-        <span class="input-label">Email:</span>
-        <p>{{valet.email}}</p>
+        <span class="input-label">Valet ID:</span>
+        <p>{{valet.valet_id}}</p>
       </label>
     </div>
 

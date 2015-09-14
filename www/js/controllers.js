@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['ionic'])
+angular.module('starter.controllers', ['ionic', 'ngCordova'])
 
 .controller('AppCtrl', function(CtrlService, $scope, $auth, $window, $http, $state) {
   // controls the display of hamburger navicon
@@ -80,7 +80,7 @@ angular.module('starter.controllers', ['ionic'])
   }
 })
 
-.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices) {
+.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices, $cordovaGeolocation) {
 
   console.log($scope);
   $scope.addressDisplay = 'Where to park?';
@@ -92,13 +92,36 @@ angular.module('starter.controllers', ['ionic'])
   var marker;
   var watchId;
 
+
+  // Cordova implementation
+  // var option  = {
+  //   enableHighAccuracy: true,
+  //   timeout           : 10000
+  // };
+
+  // $cordovaGeolocation.getCurrentPosition(option).then(function(position){
+  //   var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+  //   var mapOptions = {
+  //     center: latLng,
+  //     zoom: 15,
+  //     mapTypeId: google.maps.MapTypeId.ROADMAP
+  //   };
+
+  //   $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+
+  // }, function(error){
+  //   console.log("Could not get location.");
+  // })
+
+  // Regular google maps API
   if(navigator.geolocation){
 
     var option  = {
-      enableHighAccuracy: false,
-      timeout           : 5000,
-      maximumAge        : 5000             
+      enableHighAccuracy: true,
+      timeout           : 10000
     };
+
     
     var success = function(response){ //response is position
       $scope.myLocation.lat = response.coords.latitude;
@@ -110,10 +133,11 @@ angular.module('starter.controllers', ['ionic'])
           lat: $scope.myLocation.lat, 
           lng: $scope.myLocation.lng
         },
-        zoom: 13
+        zoom: 16
       };
-
-      initMap(mapOptions); //draws map
+      ionic.DomUtil.ready(function(){
+        initMap(mapOptions); //draws map
+      })
     };
     var fail    = function(response){
       console.log(response);
@@ -128,7 +152,7 @@ angular.module('starter.controllers', ['ionic'])
   }
 
   // CURRENTLY EXECUTES PRIOR TO HAVING GOOGLE MAP ASSETS FROM API
-  window.initMap = function(mapOptions) {
+  $window.initMap = function(mapOptions) {
     $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
     marker = new google.maps.Marker({
@@ -167,50 +191,20 @@ angular.module('starter.controllers', ['ionic'])
         longitude: lng
       }
     };
-    // $ionicLoading.show({
-    //   templateUrl: 'templates/notification/waiting_request_page.html',
-    //   scope: $scope,
-    //   noBackdrop: true
-    // });
-      debugger
+
+    $ionicLoading.show({
+      templateUrl: 'templates/notification/waiting_request_page.html',
+      scope: $scope,
+      noBackdrop: false
+    });
+
     // CREATE A REQUEST
     $http.post(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests'), request)
     .then(function(response){
       $scope.requestMade    = true;
       $scope.LastRequestId  = response.data.id;
+      $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
       console.log('--->', $scope.LastRequestId);
-      // REAL-TIME SOCKET
-      // Set subscription channel
-
-      PrivatePubServices.subscribe('/user/'+ response.data.id);
-      // The listener to the subscription
-      PrivatePub.subscribe('/user/'+ response.data.id, function(data, channel) {
-      
-        // ON VALET RESPONSE SUCCESS
-        console.log('--->', data);
-        $ionicLoading.hide() 
-
-        // PICKUP LOCATION
-        $scope.userLatlng     = {
-          lat: $scope.lat,
-          lng: $scope.lng
-        };  
-        // Drop pin of car pickup location
-        $scope.showMarker($scope.userLatlng);
-        $scope.pickup         = true;
-
-        //prepare valet information
-        $scope.valet                 = {}
-        $scope.valet.first_name      = data.first_name;
-        $scope.valet.last_name       = data.last_name;
-        $scope.valet.phone_number    = data.phone_number;
-        $scope.valet.profile_picture = data.profile_picture;
-        $scope.valet.email           = data.email;
-        console.log($scope);
-
-        // show valet information
-        $scope.openModal();
-      });
     })
     .catch(function(response){
       console.log(response);
@@ -220,6 +214,54 @@ angular.module('starter.controllers', ['ionic'])
         template: 'Please try again later.'
       });
     })
+  }
+
+  $scope.subscribeChannel = function(user_response_id){
+    // REAL-TIME SOCKET
+    // Set subscription channel
+    PrivatePubServices.subscribe(user_response_id);
+    // The listener to the subscription
+    PrivatePub.subscribe(user_response_id, function(data, channel) {
+    
+      // ON VALET RESPONSE SUCCESS
+      console.log('--->', data);
+      $ionicLoading.hide() 
+
+      $scope.requestMade ? $scope.pickup = true : $scope.pickup = false;
+
+      //prepare valet information\
+      if(data.valet){
+        $scope.valet            = {};
+        $scope.valet.name       = data.valet.name;
+        $scope.valet.phone      = data.valet.phone;
+        $scope.valet.picture    = data.valet.picture;
+        $scope.valet.valet_id   = data.valet.valet_id;
+      } else {
+        $scope.parking          = {};
+        $scope.parking          = data.parking_spot.address;
+        $scope.parking          = data.parking_spot.latitude;
+        $scope.parking          = data.parking_spot.longitude;
+      }
+      console.log($scope);
+
+      // open modal if request pickup is true
+      if($scope.pickup){
+        $scope.userLatlng = {
+          lat: $scope.lat,
+          lng: $scope.lng
+        };  
+        // Drop pin of car pickup location only if valet responds
+        $scope.showMarker($scope.userLatlng);
+        $scope.openModal();
+      }
+      else { // code is entered
+        $ionicLoading.hide();
+      }
+
+      PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
+        console.log('unsubscribed');
+      })
+    });
   }
   // show cancel button only when request is created
   $scope.cancelRequest = function(){
@@ -249,13 +291,14 @@ angular.module('starter.controllers', ['ionic'])
   };
 
   $scope.showMarker = function(Latlng){
-    console.log(Latlng);
-    var marker = new google.maps.Marker({
+    console.log(Latlng, $scope.map);
+    new google.maps.Marker({
       position  : Latlng,
       map       : $scope.map,
       visible   : true,
       icon      : 'img/curr_loc_pin.png',
-      animation : google.maps.Animation.DROP
+      animation : google.maps.Animation.DROP,
+      zIndex    : google.maps.Marker.MAX_ZINDEX + 1
     });
   }
 
@@ -267,27 +310,21 @@ angular.module('starter.controllers', ['ionic'])
         auth_code: codeInput
       }
     };
-
+    // currently, the pickup is true due to 
     $http.put(CtrlService.urlFactory('users/'+ $scope.currentUser.id +'/requests/' + $scope.LastRequestId +'/car_pick_up'), input)
     .then(function(response){
       // TRANSITION TO DROPOFF CYCLE
-      $scope.pickup   = false;
-      $scope.dropoff  = true;
-      console.log(response, $scope);
+      $scope.pickup       = false;
+      $scope.dropoff      = true;
+      $scope.requestMade  = false;
+      // Wait for response of "Parked" from valet
+      $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
       $ionicLoading.show({
         templateUrl: 'templates/notification/waiting_parking_page.html',
         scope: $scope,
         noBackdrop: false
       });
-
-      // UNSUBSCRIBE FROM CHANNEL WHEN THERE IS A "PARKED" RESP
-      // Add this to next cycle, when the notification of parked is complete
-      PrivatePubServices.unsubscribe('/user/'+ response.data.id);
-      // expects "parking" status???
-      PrivatePub.unsubscribe('/user/'+ response.data.id, function(data, channel){
-        $scope.addressDisplay = 'Where to pickup?';
-        
-      })
+      console.log(response, $scope);
     })
     .catch(function(response){
       console.log(response);
