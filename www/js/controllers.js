@@ -164,11 +164,11 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     $scope.dropoff != true ? $scope.ionicLoadMsg = ' pickup ' : $scope.ionicLoadMsg = ' dropoff ';
     console.log($scope.ionicLoadMsg);
     $ionicLoading.show({
-      templateUrl: 'templates/notification/waiting_request_page.html',
+      // in-line template B/C map refreshes with templateURL
+      template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Notifying friendly valets near your {{ionicLoadMsg}} point ...</h1><button ng-click="cancelRequest()" class="button button-assertive button-block">Cancel</button>',
       scope: $scope,
       noBackdrop: false
     });
-    debugger
 
     // CREATE A REQUEST
     if($scope.LastRequestId && $scope.dropoff){ //if request id already exists and it's a dropoff...
@@ -251,18 +251,28 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $scope.openModal();
         $scope.pickup_valet  = $scope.valet;
       }
+      // when a dropoff request is just made by the user, unanswered
       else if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
         $scope.openModal();
       }
       else if($scope.delivery_auth){
         $scope.$apply($scope.delivery_auth);
         $scope.dropoff_valet  = $scope.valet;
+        $ionicLoading.show({
+          // in-line template B/C map refreshes with templateURL
+          template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Your Auth Code is:{{delivery_auth}}</h1><h1>Valet is now retrieving your car...</h1>',
+          scope: $scope,
+          noBackdrop: false
+        })  
       }
       else { // code is entered
         $ionicLoading.hide();
       }
       // show modal when the rating is given
-      if($scope.rating){ $scope.openModal()} 
+      if($scope.rating){ 
+        $ionicLoading.hide();
+        $scope.openModal();
+      } 
       // this is to keep the subscription open after valet answers to the dropoff request
       if($scope.dropoff != true){ 
         PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
@@ -297,8 +307,15 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   }
 
   $scope.closeModal = function() {
-
     $scope.modal.hide();
+    if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
+      $ionicLoading.show({
+        // in-line template B/C map refreshes with templateURL
+        template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Contacting Friendly valets near your car for delivery...</h1>',
+        scope: $scope,
+        noBackdrop: false
+      })
+    }
   };
 
   $scope.showMarker = function(Latlng){
@@ -329,8 +346,14 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       $scope.dropoff      = true;
       $scope.requestMade  = false;
       // Wait for response of "Parked" from valet
+
       $scope.subscribeChannel('/user/'+ $scope.LastRequestId)
-       
+      $ionicLoading.show({
+        // in-line template B/C map refreshes with templateURL
+        template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Parking your car...</h1>',
+        scope: $scope,
+        noBackdrop: false
+      });
       console.log(response, $scope);
     })
     .catch(function(response){
