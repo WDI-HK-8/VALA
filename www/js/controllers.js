@@ -12,7 +12,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $state.go('app.landing');
       }
   }
-
   $scope.$watch(validateUser()); 
   $scope.$watch($scope.currentUser); 
 
@@ -23,7 +22,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   }
 
   $scope.signinForm     = {};
-
   $scope.signin         = function(){
     // ng-token-auth send http auth request to sign_in
     $auth.submitLogin($scope.signinForm).then(function(response){
@@ -37,8 +35,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       console.log(response);
     })
   }
-  
-
 })
 
 .controller('landingCtrl', function(CtrlService, $scope, $auth, $http, $window, $state) {
@@ -91,28 +87,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   var marker;
   var watchId;
 
-
-  // Cordova implementation
-  // var option  = {
-  //   enableHighAccuracy: true,
-  //   timeout           : 10000
-  // };
-
-  // $cordovaGeolocation.getCurrentPosition(option).then(function(position){
-  //   var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-  //   var mapOptions = {
-  //     center: latLng,
-  //     zoom: 15,
-  //     mapTypeId: google.maps.MapTypeId.ROADMAP
-  //   };
-
-  //   $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-
-  // }, function(error){
-  //   console.log("Could not get location.");
-  // })
-
   // Regular google maps API
   if(navigator.geolocation){
 
@@ -120,8 +94,6 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       enableHighAccuracy: true,
       timeout           : 10000
     };
-
-    
     var success = function(response){ //response is position
       $scope.myLocation.lat = response.coords.latitude;
       $scope.myLocation.lng = response.coords.longitude;
@@ -239,7 +211,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     PrivatePub.subscribe(user_response_id, function(data, channel) {
     
       // ON VALET RESPONSE SUCCESS
-      console.log('--->', data);
+      console.log('----> subscribed');
       $ionicLoading.hide()
 
       // MARKER POSITIONING
@@ -251,7 +223,8 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
 
       $scope.requestMade ? $scope.pickup = true : $scope.pickup = false;
 
-      //prepare valet information\
+      //handles realtime subscriptions
+
       if(data.valet){
         $scope.valet            = {};
         $scope.valet.name       = data.valet.name;
@@ -260,31 +233,42 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         $scope.valet.valet_id   = data.valet.valet_id;
       } else if (data.parking_spot) {
         $scope.parking          = {};
-        $scope.address          = data.parking_spot.address;
-        $scope.latitude         = data.parking_spot.latitude;
-        $scope.longitude        = data.parking_spot.longitude;
-      } else {
+        $scope.parking.address  = data.parking_spot.address;
+        $scope.parking.latitude = data.parking_spot.latitude;
+        $scope.parking.longitude= data.parking_spot.longitude;
+      } else if (data.request){
         $scope.delivery_auth    = data.request.auth_code;
+      } else {
+        $scope.rating           = data.status;
       }
       console.log($scope);
+      console.log($scope.pickup_valet, $scope.dropoff_valet);
 
       // open modal if request pickup is true
       if($scope.pickup){
         // Drop pin of car pickup location only if valet responds
         $scope.openModal();
+        $scope.pickup_valet  = $scope.valet;
       }
       else if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
         $scope.openModal();
       }
+      else if($scope.delivery_auth){
+        $scope.$apply($scope.delivery_auth);
+        $scope.dropoff_valet  = $scope.valet;
+      }
       else { // code is entered
         $ionicLoading.hide();
       }
+      // show modal when the rating is given
+      if($scope.rating){ $scope.openModal()} 
       // this is to keep the subscription open after valet answers to the dropoff request
       if($scope.dropoff != true){ 
         PrivatePubServices.unsubscribe('/user/'+ user_response_id, function() {
-          console.log('unsubscribed');
+          console.log('---->unsubscribed');
         });
       }
+      console.log($scope.pickup_valet, $scope.dropoff_valet);
     });
   }
   // show cancel button only when request is created

@@ -21,9 +21,11 @@
           </button>
         </div>
       </div>
-      <div class="list text-center" ng-show="!pickup && dropoff">
-        <h1>Car Retrieval Authentication Code: {{delivery_auth}}</h1>
-        <p>Please make sure you keep this passcode a secret.</p>
+    </div>
+    <div id="valetAuth" class="bar bar-subfooter"  ng-show="dropoff && delivery_auth">
+      <div class="list text-center" ng-show="dropoff && delivery_auth">
+          <h4>Car Retrieval Authentication Code: {{delivery_auth}}</h4>
+          <p>Please make sure you keep this passcode a secret and show it to your valet when he/she delivers your car.</p>
       </div>
     </div>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
