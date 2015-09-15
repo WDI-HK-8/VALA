@@ -8,8 +8,8 @@
       <i class="icon ion-android-car"></i>
       Request a car pickup</button>
     </div>
-    <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
-      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> 
+    <div id="pickupBar" class="bar bar-footer bar-calm" ng-show="!pickup && dropoff">
+      <button id="pickupFooter" class="button button-large button-full button-calm padding" ng-click="sendCenterLocation()" style="margin: 0"> 
       <i class="icon ion-android-car"></i>
       Request car return
       </button>
@@ -20,7 +20,7 @@
           <label class="item-input-wrapper">
             <input type="text" placeholder="input code here" ng-model="codeInput">
           </label>
-          <button class="button button-small" ng-click="sendAuthCode(codeInput)">
+          <button class="button button-small button-balanced" ng-click="sendAuthCode(codeInput)">
             Submit
           </button>
         </div>
