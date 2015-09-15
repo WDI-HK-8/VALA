@@ -140,11 +140,11 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     $scope.map.addListener('dragend', function(){
       $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
       console.log('MAP CENTER---> ', $scope.center_coords);
+      // $scope.openModal();
       var latlng   = {
         lat: $scope.center_coords.G, 
         lng: $scope.center_coords.K
       };
-      $scope.openModal()
       geocoder.geocode({ 'location': latlng }, function(results){
         $scope.$digest($scope.addressDisplay = results[0].formatted_address)
       });
@@ -269,6 +269,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       // when a dropoff request is just made by the user, unanswered
       else if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
         $scope.openModal();
+        $scope.delevery_auth = true; //show modal once only
       }
       else if($scope.delivery_auth){
         $scope.$apply($scope.delivery_auth);
@@ -316,6 +317,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
   }).then(function(modal) {
     $scope.modal = modal;
   })
+  
 
   $scope.openModal = function() {
     $scope.modal.show();
@@ -326,7 +328,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
       $ionicLoading.show({
         // in-line template B/C map refreshes with templateURL
-        template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Contacting Friendly valets near your car for delivery...</h1>',
+        template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Your valet will pickup your car shortly. Thank you for your patience.</h1>',
         scope: $scope,
         noBackdrop: false
       })
@@ -393,6 +395,9 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
     $http.put(CtrlService.urlFactory('users/'+ $scope.currentUser.id + '/requests/' + $scope.LastRequestId + '/ratings'), ratingRequest)
     .then(function(response){
       console.log(response);
+      $scope.modal.hide();
+      // show the cost of the bill
+      window.location.reload();
     })
     .catch(function(response){
       console.log(response);

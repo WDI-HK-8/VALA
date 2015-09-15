@@ -4,10 +4,15 @@
     <img id="center_pin" src="img/center_pin.svg.png">
     <div id="map" data-tap-disabled="true" style="height: 100%"></div>
     <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
-      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request a car pickup</button>
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0">
+      <i class="icon ion-android-car"></i>
+      Request a car pickup</button>
     </div>
     <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && dropoff">
-      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> Request car return</button>
+      <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0"> 
+      <i class="icon ion-android-car"></i>
+      Request car return
+      </button>
     </div>
     <div id="valetAuth" class="bar bar-subfooter"  ng-show="pickup">
       <div class="list" ng-show="pickup && !dropoff">
@@ -22,10 +27,12 @@
       </div>
     </div>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
-      <button class="button button-light button-large col col-60 item item-avatar">
+      <button class="button button-light button-large">
+        <div class="item item-avatar">
           <img src="img/valet_pickup.png">
           <h2>{{valet.name}}</h2>
           <p>Vala Agent</p>
+        </div>
       </button>
       <button id="call_btn" class="list item button button-positive button-large icon ion-ios-telephone">
       </button>
