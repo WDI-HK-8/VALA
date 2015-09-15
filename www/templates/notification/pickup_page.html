@@ -1,4 +1,4 @@
-<div class="modal" ng-hide="rating">
+<div class="modal" ng-hide="true">
   <ion-header-bar>
     <h1 class="title">Meet Your Valet, {{valet.name}}!</h1>
   </ion-header-bar>
@@ -22,12 +22,14 @@
     <button class="button button-full button-energized" ng-click="closeModal()">Got it!</button>
   </ion-content>
 </div>
-<div class="modal" ng-show="rating">
+<!-- rating -->
+<div class="modal" ng-show="true"> 
   <ion-header-bar>
     <h1 class="title">Please review your valets!</h1>
   </ion-header-bar>
   <ion-content>
     <!-- PICKUP VALET -->
+    <div class="list"><h1>Please review your valets!</h1></div>
     <div class="list">
       <img class="item" src="img/valet_pickup.png">
       <label class="item item-input">
@@ -39,15 +41,13 @@
         <p>{{pickup_valet.valet_id}}</p>
       </label>
       <label class="item item-input">
-        <span class="input-label">Your rating for this valet:</span>
-        <label class="item item-radio">
-          <input type="radio" name="group" placeholder="1">
-          <input type="radio" name="group" placeholder="2">
-          <input type="radio" name="group" placeholder="3">
-          <input type="radio" name="group" placeholder="4">
-          <input type="radio" name="group" placeholder="5">
-        </label>
-      </label>
+      <form>
+        <input type="radio" ng-model="choice_pickup" ng-value="1">
+        <input type="radio" ng-model="choice_pickup" ng-value="2">
+        <input type="radio" ng-model="choice_pickup" ng-value="3">
+        <input type="radio" ng-model="choice_pickup" ng-value="4">
+        <input type="radio" ng-model="choice_pickup" ng-value="5">
+      </form>
     </div>
     <!-- DROP OFF VALET -->
     <div class="list">
@@ -62,16 +62,17 @@
       </label>
       <label class="item item-input">
         <span class="input-label">Your rating for this valet:</span>
-        <label class="item item-radio">
-          <input type="radio" name="group" placeholder="1">
-          <input type="radio" name="group" placeholder="2">
-          <input type="radio" name="group" placeholder="3">
-          <input type="radio" name="group" placeholder="4">
-          <input type="radio" name="group" placeholder="5">
-        </label>
+        <ion-radio ng-model="choice_dropoff" ng-value="1">1</ion-radio>
+        <ion-radio ng-model="choice_dropoff" ng-value="2">2</ion-radio>
+        <ion-radio ng-model="choice_dropoff" ng-value="3">3</ion-radio>
+        <ion-radio ng-model="choice_dropoff" ng-value="4">4</ion-radio>
+        <ion-radio ng-model="choice_dropoff" ng-value="5">5</ion-radio>
+        <span class="input-label">Your rating for this service:</span>
+        <input type="text" ng-model="tip">
       </label>
     </div>
-    <!-- remove button if user has not selected rating -->
-    <button class="button button-full button-energized" ng-click="closeModal()">Got it!</button>
+    <!-- http users/user_id/requests/request_id/ratings -->
+    <!-- closeModal on http post request success -->
+    <button class="button button-full button-energized" ng-click="sendReviews(choice_pickup, choice_dropoff, tip)">Send review</button>
   </ion-content>
 </div>

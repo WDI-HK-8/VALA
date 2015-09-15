@@ -127,23 +127,31 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       marker  = new google.maps.Marker ({
       position: mapOptions.center, //AKA my current position
       map     : $scope.map,
-      icon    : 'img/curr_loc_pin.png'
+      animation : google.maps.Animation.BOUNCE,
     })
+
+    // add infoWindow
+    var geocoder = new google.maps.Geocoder();
+    $scope.infowindow = new google.maps.InfoWindow({
+      content: 'You are here.'
+    });
+    $scope.infowindow.open($scope.map, marker);
 
     $scope.map.addListener('dragend', function(){
       $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
-      console.log('dragend---> ', $scope.center_coords);
+      console.log('MAP CENTER---> ', $scope.center_coords);
       var latlng   = {
         lat: $scope.center_coords.G, 
         lng: $scope.center_coords.K
       };
-
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode({
-        'location': latlng
-      }, function(results){
+      $scope.openModal()
+      geocoder.geocode({ 'location': latlng }, function(results){
         $scope.$digest($scope.addressDisplay = results[0].formatted_address)
       });
+    });
+
+    $scope.map.addListener('center_changed', function(){
+      $scope.infowindow.close();
     });
   }
   // Called by button click event
@@ -215,17 +223,9 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       console.log('----> subscribed');
       $ionicLoading.hide()
 
-      // MARKER POSITIONING
-      $scope.userLatlng = {
-        lat: $scope.lat,
-        lng: $scope.lng
-      };  
-      $scope.showMarker($scope.userLatlng); 
-
       $scope.requestMade ? $scope.pickup = true : $scope.pickup = false;
 
       //handles realtime subscriptions
-
       if(data.valet){
         $scope.valet            = {};
         $scope.valet.name       = data.valet.name;
@@ -235,8 +235,18 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       } else if (data.parking_spot) {
         $scope.parking          = {};
         $scope.parking.address  = data.parking_spot.address;
-        $scope.parking.latitude = data.parking_spot.latitude;
-        $scope.parking.longitude= data.parking_spot.longitude;
+        $scope.parking.latLng   = {
+          lat: Number(data.parking_spot.latitude),
+          lng: Number(data.parking_spot.longitude)
+        };
+        // drops marker and sets map center
+        $scope.parkingMarker    = $scope.showMarker($scope.parking.latLng);
+        $scope.map.setCenter($scope.parking.latLng);
+        $scope.infowindow       = new google.maps.InfoWindow({
+          content: 'Your car is now parked'
+        });
+        $scope.infowindow.open($scope.map, $scope.parkingMarker); 
+
       } else if (data.request){
         $scope.delivery_auth    = data.request.auth_code;
       } else {
@@ -245,11 +255,16 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       console.log($scope);
       console.log($scope.pickup_valet, $scope.dropoff_valet);
 
-      // open modal if request pickup is true
+      // open modal if pickup request is answered
       if($scope.pickup){
         // Drop pin of car pickup location only if valet responds
         $scope.openModal();
-        $scope.pickup_valet  = $scope.valet;
+        $scope.pickup_valet     = $scope.valet;
+        var pickupMark = $scope.showMarker({lat:$scope.center_coords.G, lng:$scope.center_coords.K});
+        $scope.infowindow = new google.maps.InfoWindow({
+          content: 'Pickup Point'
+        });
+        $scope.infowindow.open($scope.map, pickupMark);
       }
       // when a dropoff request is just made by the user, unanswered
       else if(!$scope.delivery_auth && $scope.dropoff && $scope.dropoff_request){
@@ -257,7 +272,7 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       }
       else if($scope.delivery_auth){
         $scope.$apply($scope.delivery_auth);
-        $scope.dropoff_valet  = $scope.valet;
+        $scope.dropoff_valet    = $scope.valet;
         $ionicLoading.show({
           // in-line template B/C map refreshes with templateURL
           template: '<ion-spinner icon="spiral" class="ion-loading-c col col-30"></ion-spinner><h1>Your Auth Code is:{{delivery_auth}}</h1><h1>Valet is now retrieving your car...</h1>',
@@ -317,15 +332,15 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
       })
     }
   };
-
+  // ADD ZOOM ZOOM TO MARKER when dropped
   $scope.showMarker = function(Latlng){
     console.log('---> Drop marker: ',Latlng, $scope.map);
-    new google.maps.Marker({
+    return new google.maps.Marker({
       position  : Latlng,
       map       : $scope.map,
       visible   : true,
-      icon      : 'img/curr_loc_pin.png',
-      animation : google.maps.Animation.DROP,
+      icon      : $scope.parking ? 'img/parking_icon.png' : 'img/curr_loc_pin.png',
+      animation : google.maps.Animation.BOUNCE,
       zIndex    : google.maps.Marker.MAX_ZINDEX + 1
     });
   }
@@ -354,7 +369,30 @@ angular.module('starter.controllers', ['ionic', 'ngCordova'])
         scope: $scope,
         noBackdrop: false
       });
+      // $scope.pickupMark.setMap(null);
+
+      // drop new pin of parked location. zoom map to that location
+
       console.log(response, $scope);
+    })
+    .catch(function(response){
+      console.log(response);
+    })
+  }
+
+  $scope.sendReviews = function(choice_pickup, choice_dropoff, tip){
+    var ratingRequest = {
+      request: {
+        pick_up : choice_pickup,
+        drop_off: choice_dropoff,
+        tip     : tip
+      }
+    };
+
+    console.log(ratingRequest);
+    $http.put(CtrlService.urlFactory('users/'+ $scope.currentUser.id + '/requests/' + $scope.LastRequestId + '/ratings'), ratingRequest)
+    .then(function(response){
+      console.log(response);
     })
     .catch(function(response){
       console.log(response);
