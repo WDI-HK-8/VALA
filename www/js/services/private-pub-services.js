@@ -17,10 +17,8 @@ valaApp.service('PrivatePubServices', function() {
   };
 
   x.unsubscribe = function (channel) {
-    PrivatePub.unsubscribe(channel, function(channel, callback){
-      console.log(channel);
-      console.log(data);
-    });
+    PrivatePub.unsubscribe(channel);
+    console.log('unsubscribed');
   }
   return x;
 });

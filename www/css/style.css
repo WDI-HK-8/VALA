@@ -1,4 +1,7 @@
 /* Empty. Add your own CSS if you like */
+.ion-navicon{
+  color: #E0E3E3 !important;
+}
 
 #landing_img{
   width: 40%;
@@ -7,8 +10,9 @@
   margin: 20px 20px 10px 20px;
 }
 
-#landing_logo{
-  margin-bottom: 20px
+div#landing_logo.item.item-image{
+  margin-bottom: 50px;
+  border-width: 0px;
 }
 
 #signupFooter{
@@ -22,13 +26,13 @@
 #center_pin{
   position:fixed;
   z-index: 1000;
-  left:49%;
+  left:48%;
   top:49%;
 }
 
 #pickupBar{
   padding: 0px;
-  height: 8vh;
+  height: 12vh;
 }
 
 #valetAuth{
@@ -42,11 +46,11 @@
 
 #call_btn, #pickupFooter{
   height: auto;
-  font-size: 30px;
+  font-size: 25px;
 }
 
 #call_btn{
-  width:40%;
+  width:25%;
 }
 
 @font-face {
@@ -62,12 +66,62 @@
 body, h1, a, h3, h4{
   font-family: 'Lato', Fallback, sans-serif;
 }
-
+.ion-android-car{
+  margin-right: 1.5vh;
+}
 .button{
   font-family: 'Lato-Regular', Fallback, sans-serif;
-  font-size: 20px;
+  font-size: 18px;
 }
-
+.button-energized{
+  background-color: #FFB600 !important;
+}
 small{
   font-size: 18px;
+}
+
+.item.item-radio{
+  width: 10%;
+}
+
+div.list:nth-of-type(2){
+}
+
+div.list{
+  margin-bottom: 0px;
+}
+
+label.item.item-radio{
+  background-color: #353634;
+}
+
+.bar.bar-header{
+  background-color: #353634;
+  height: 5vh;
+}
+
+.title{
+  font-size: 18px !important;
+  color: #FBFFFF !important;
+}
+
+.item-image{
+  margin: 5vh auto 3vh;
+}
+
+p{
+  font-size: 18px;
+}
+
+div.item.item-avatar{
+  padding-bottom: 0px;
+  border-width: 0px;
+}
+
+.button-light{
+  width:75%;
+}
+
+p.ng-binding, .input-label{
+  font-size: 20px;
 }
