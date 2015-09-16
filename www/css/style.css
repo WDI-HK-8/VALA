@@ -11,7 +11,23 @@
   width: 40%;
   max-width: 300px;
   top: 10vh;
-  margin: 20px 20px 10px 20px;
+  margin: 20px 20px -20px 20px;
+}
+
+#landing_bgd, #landing_logo{
+  background-color: #070717;
+}
+
+.button-assertive{
+  background-color: #EB3412 !important;
+}
+
+.button-positive{
+  background-color: #003F7B !important;
+}
+
+small.text-center{
+  color: white;
 }
 
 div#landing_logo.item.item-image{
@@ -19,8 +35,12 @@ div#landing_logo.item.item-image{
   border-width: 0px;
 }
 
-#signupFooter{
-  border-top: 1px solid #DDDEE8;
+h1.text-center{
+  color: white;
+}
+
+.item.item-divider{
+  background-color: #DCFEE3;
 }
 
 .angular-google-map-container { 
@@ -182,4 +202,8 @@ p.ng-binding, .input-label{
   background-color: #F65820;
   border-width: 0px;
   margin-top: 0px;
+}
+
+a.button .icon:before, a.button.icon:before, a.button.icon-left:before, a.button.icon-right:before{
+  margin-top: 14px;
 }
