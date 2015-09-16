@@ -1,8 +1,11 @@
 <ion-nav-view class=""></ion-nav-view>
 <ion-view view-title= {{addressDisplay}}>
   <ion-content scroll="false">
-    <img id="center_pin" src="img/center_pin.svg.png">
+    <img id="center_pin" src="img/center_pin.svg.png" ng-show="centerMarker">
     <div id="map" data-tap-disabled="true" style="height: 100%"></div>
+    <button id="getCurrentPosition" class="button" ng-click="panToCurrentLocation()">
+      <i class="icon ion-navigate"></i>
+    </button>
     <div id="pickupBar" class="bar bar-footer bar-assertive" ng-show="!pickup && !dropoff">
       <button id="pickupFooter" class="button button-large button-full button-assertive padding" ng-click="sendCenterLocation()" style="margin: 0">
       <i class="icon ion-android-car"></i>
@@ -14,28 +17,28 @@
       Request car return
       </button>
     </div>
-    <div id="valetAuth" class="bar bar-subfooter"  ng-show="pickup">
+    <ion-subfooter-bar id="valetAuth" ng-show="pickup">
       <div class="list" ng-show="pickup && !dropoff">
-        <div class="item item-input-inset">
+        <div id="pickupAuthInput" class="item item-input-inset">
           <label class="item-input-wrapper">
-            <input type="text" placeholder="input code here" ng-model="codeInput">
+            <input class="input-large" type="text" placeholder="input code here" ng-model="codeInput">
           </label>
-          <button class="button button-small button-balanced" ng-click="sendAuthCode(codeInput)">
+          <button class="button button-large button-balanced" ng-click="sendAuthCode(codeInput)">
             Submit
           </button>
         </div>
       </div>
-    </div>
+    </ion-subfooter-bar>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
       <button class="button button-light button-large">
         <div class="item item-avatar">
-          <img src="img/valet_pickup.png">
+          <img src="img/valet_pickup.png" style="position: fixed;">
           <h2>{{valet.name}}</h2>
           <p>Vala Agent</p>
         </div>
       </button>
-      <button id="call_btn" class="list item button button-positive button-large icon ion-ios-telephone">
-      </button>
+      <a id="call_btn" href="tel:+{{valet.phone}}" class="list item button button-positive button-large icon ion-ios-telephone">
+      </a>
     </div>
  
   </ion-content>

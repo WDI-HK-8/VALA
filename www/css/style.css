@@ -3,11 +3,31 @@
   color: #E0E3E3 !important;
 }
 
+.back-button{
+  display: none !important;
+}
+
 #landing_img{
   width: 40%;
   max-width: 300px;
   top: 10vh;
-  margin: 20px 20px 10px 20px;
+  margin: 20px 20px -20px 20px;
+}
+
+#landing_bgd, #landing_logo{
+  background-color: #070717;
+}
+
+.button-assertive{
+  background-color: #EB3412 !important;
+}
+
+.button-positive{
+  background-color: #003F7B !important;
+}
+
+small.text-center{
+  color: white;
 }
 
 div#landing_logo.item.item-image{
@@ -15,8 +35,12 @@ div#landing_logo.item.item-image{
   border-width: 0px;
 }
 
-#signupFooter{
-  border-top: 1px solid #DDDEE8;
+h1.text-center{
+  color: white;
+}
+
+.item.item-divider{
+  background-color: #DCFEE3;
 }
 
 .angular-google-map-container { 
@@ -37,20 +61,33 @@ div#landing_logo.item.item-image{
 
 #valetAuth{
   position: absolute;
-  bottom: 12vh;
+  bottom: 11.5vh;
+  padding: 0px;
+}
+
+#valetAuth > div{
+  width: 100vw;
+}
+
+#pickupAuthInput > button{
+  padding: 0px 12px;
+  line-height: 0px;
+  min-height: 6.5vh;
 }
 
 #valetFooter{
-  height:10vh;
+  height:12vh;
+  padding: 0px;
 }
 
 #call_btn, #pickupFooter{
-  height: auto;
   font-size: 25px;
 }
 
 #call_btn{
   width:25%;
+  border-right: #0C335E 1vh solid;
+  border-left: #0C335E 1vh solid;
 }
 
 @font-face {
@@ -69,22 +106,22 @@ body, h1, a, h3, h4{
 .ion-android-car{
   margin-right: 1.5vh;
 }
+
 .button{
   font-family: 'Lato-Regular', Fallback, sans-serif;
   font-size: 18px;
 }
+
 .button-energized{
   background-color: #FFB600 !important;
 }
+
 small{
   font-size: 18px;
 }
 
-.item.item-radio{
-  width: 10%;
-}
-
-div.list:nth-of-type(2){
+.item.item-radio > div{
+  padding: 11px 43px 11px 8px;
 }
 
 div.list{
@@ -97,7 +134,8 @@ label.item.item-radio{
 
 .bar.bar-header{
   background-color: #353634;
-  height: 5vh;
+  border-bottom: 2px black solid;
+  height: 7vh;
 }
 
 .title{
@@ -114,14 +152,58 @@ p{
 }
 
 div.item.item-avatar{
-  padding-bottom: 0px;
+  height: 8vh;
+  padding: 0px;
   border-width: 0px;
+  min-height: 5vh;
 }
 
 .button-light{
-  width:75%;
+  width:70%;
+  margin-left: 1.5vh;
 }
 
 p.ng-binding, .input-label{
   font-size: 20px;
+}
+
+#getCurrentPosition{
+  position: fixed;
+  bottom:13vh;
+  left: 1vh;
+  padding: 0px;
+}
+
+#pickupAuthInput{
+  height: 10vh;
+  background-color: #353634;
+}
+
+#pickupAuthInput input{
+  height: 6vh;
+  font-size: 18px;
+}
+
+.item.item-radio:nth-last-of-type(1) {
+  margin-right: 5vw;
+}
+
+.item-radio input:checked ~ .radio-icon{
+  visibility: hidden;
+}
+
+.item-radio input:checked ~ .item-content{
+  background-color: #98E5B1;
+}
+
+#sendReview_btn{
+  height: 10vh;
+  margin-bottom: 0px;
+  background-color: #F65820;
+  border-width: 0px;
+  margin-top: 0px;
+}
+
+a.button .icon:before, a.button.icon:before, a.button.icon-left:before, a.button.icon-right:before{
+  margin-top: 14px;
 }
