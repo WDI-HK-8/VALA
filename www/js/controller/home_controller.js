@@ -1,5 +1,14 @@
 valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices, $cordovaGeolocation, $timeout, $ionicPlatform) {
-
+    $scope.addressDisplay = 'Where to park?';
+    $scope.myLocation     = {};
+    $scope.requestMade    = false;
+    $scope.pickup         = false;
+    $scope.dropoff        = false;
+    $scope.centerMarker   = true;
+    $scope.map;
+    var marker;
+    var watchId;
+    $scope.currentUser    = CtrlService.getUser();
   // $ionicPlatform.ready(function(){
     var option  = {
       enableHighAccuracy: true,
@@ -372,6 +381,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         console.log(response);
       })
     }
+
     $scope.panToCurrentLocation = function(){
       navigator.geolocation.getCurrentPosition(function(response){
         $scope.myLocation.lat   = response.coords.latitude;
@@ -380,4 +390,3 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       $scope.map.panTo($scope.myLocation);
     }
 }) //CONTROLLER LEVEL
-
