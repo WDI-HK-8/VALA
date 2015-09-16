@@ -35,26 +35,6 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         // error
       });
 
-    var watchOptions = {
-      frequency : 1000,
-      timeout : 3000,
-      enableHighAccuracy: true
-    };
-
-    var watch = $cordovaGeolocation.watchPosition(watchOptions);
-    watch.then(
-      null,
-      function(err) {
-        // error
-      },
-      function(position) {
-        // var myPosition = {};
-        console.log("watch on");
-        var lat = position.coords.latitude
-        var lng = position.coords.longitude
-        updateMarker({lat:lat, lng:lng})
-    });
-
     var addMarker = function(position) {
       var marker = new google.maps.Marker({
         position: position,
