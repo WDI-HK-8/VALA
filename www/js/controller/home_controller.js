@@ -69,15 +69,15 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
     $scope.currentUser    = CtrlService.getUser();
 
     $window.initMap = function(mapOptions) {
-      $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
-        marker  = new google.maps.Marker ({
-        position: mapOptions.center, //AKA my current position
-        map     : $scope.map,
+      $scope.map    = new google.maps.Map(document.getElementById('map'), mapOptions);
+        marker      = new google.maps.Marker ({
+        position  : mapOptions.center, //AKA my current position
+        map       : $scope.map,
         animation : google.maps.Animation.BOUNCE,
       })
 
       // add infoWindow
-      $scope.infowindow = new google.maps.InfoWindow({
+      $scope.infowindow      = new google.maps.InfoWindow({
         content: 'You are here.'
       });
       $scope.infowindow.open($scope.map, marker);
@@ -173,12 +173,14 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
 
         //handles realtime subscriptions
         if(data.valet){
+          $scope.centerMarker     = false;
           $scope.valet            = {};
           $scope.valet.name       = data.valet.name;
           $scope.valet.phone      = data.valet.phone;
           $scope.valet.picture    = data.valet.picture;
           $scope.valet.valet_id   = data.valet.valet_id;
         } else if (data.parking_spot) {
+          $scope.centerMarker     = true;
           $scope.parking          = {};
           $scope.parking.address  = data.parking_spot.address;
           $scope.parking.latLng   = {
@@ -328,7 +330,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       })
     }
 
-    $scope.sendReviews = function(choice_pickup, choice_dropoff, tip){
+    $scope.sendReviews  = function(choice_pickup, choice_dropoff, tip){
       var ratingRequest = {
         request: {
           pick_up : choice_pickup,
@@ -345,17 +347,37 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         $scope.completeRequest = true;
         $scope.modal.hide();
         // show the cost of the bill
+        $scope.ticker          = 10;
+        $scope.countDown       = setInterval(function(){
+          $scope.$apply($scope.ticker--);
+          console.log($scope.ticker);
+        }, 1000);
+        if($scope.ticker == 0){
+          clearInterval($scope.countDown);
+        }
         $ionicLoading.show({
           // in-line template B/C map refreshes with templateURL
-          template  : '<h1>Thank you for using Vala services.<br> Your bill is ${{totalBill}}',
+          template  : '<h1>Thank you for using Vala services.<br> Your bill is ${{totalBill}}<br><br><p>This message will terminate in {{ticker}} seconds.</p>',
           scope     : $scope,
           noBackdrop: false,
         });
+
         $timeout(function(){window.location.reload()}, 10000);
       })
       .catch(function(response){
+        $ionicPopup.alert({
+          title: 'There was an error in your request.',
+          template: 'Please enter reviews for both valets. Thank you.'
+        });
         console.log(response);
       })
     }
-  // })
-})
+    $scope.panToCurrentLocation = function(){
+      navigator.geolocation.getCurrentPosition(function(response){
+        $scope.myLocation.lat   = response.coords.latitude;
+        $scope.myLocation.lng   = response.coords.longitude;
+      })
+      $scope.map.panTo($scope.myLocation);
+    }
+}) //CONTROLLER LEVEL
+
