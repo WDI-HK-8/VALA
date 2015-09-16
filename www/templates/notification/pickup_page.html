@@ -30,13 +30,13 @@
     <!-- PICKUP VALET -->
     <div class="list">
       <img class="item item-image" src="img/valet_pickup.png">
-      <p class="text-center">Hi, I'm {{pickup_valet.name}}. How did I do?</p>
+      <p class="text-center">{{pickup_valet.name}} Rating</p>
       <label class="item item-input">
         <span class="input-label">Valet ID:</span>
         <p>{{pickup_valet.valet_id}}</p>
       </label>
       <label class="item item-input item-center">
-        <span class="input-label">Your rating for this valet:</span>
+        <span class="input-label">Valet Rating:</span>
         <ion-radio name="pickup" ng-model="choice_pickup" ng-value="1">1</ion-radio>
         <ion-radio name="pickup" ng-model="choice_pickup" ng-value="2">2</ion-radio>
         <ion-radio name="pickup" ng-model="choice_pickup" ng-value="3">3</ion-radio>
@@ -48,13 +48,13 @@
     <!-- DROP OFF VALET -->
     <div class="list">
       <img class="item item-image" src="img/valet_pickup.png">
-        <p class="text-center">Hi, I'm {{dropoff_valet.name}}. How was my service?</p>
+        <p class="text-center">{{dropoff_valet.name}} Rating</p>
       <label class="item item-input">
         <span class="input-label">Valet ID:</span>
         <p>{{pickup_valet.valet_id}}</p>
       </label>
       <label class="item item-input">
-        <span class="input-label">Your rating for this valet:</span>
+        <span class="input-label">Valet Rating:</span>
         <ion-radio name="dropoff" ng-model="choice_dropoff" ng-value="1">1</ion-radio>
         <ion-radio name="dropoff" ng-model="choice_dropoff" ng-value="2">2</ion-radio>
         <ion-radio name="dropoff" ng-model="choice_dropoff" ng-value="3">3</ion-radio>
@@ -63,7 +63,11 @@
       </label>
       <label class="item item-input">
         <span class="input-label">Service Tip:</span>
-        <input type="text" ng-model="tip" ng-value="0" placeholder="$0.00">
+        <ion-radio name="tip" ng-model="tip" ng-value="0" checked>0</ion-radio>
+        <ion-radio name="tip" ng-model="tip" ng-value="25">25</ion-radio>
+        <ion-radio name="tip" ng-model="tip" ng-value="50">50</ion-radio>
+        <ion-radio name="tip" ng-model="tip" ng-value="75">75</ion-radio>
+        <ion-radio name="tip" ng-model="tip" ng-value="100">100</ion-radio>
       </label>
     </div>
     <button class="button button-full button-balanced" ng-click="sendReviews(choice_pickup, choice_dropoff, tip)">Send review</button>
