@@ -25,6 +25,38 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       }, function(err) {
         // error
       });
+
+    var watchOptions = {
+      frequency : 1000,
+      timeout : 3000,
+      enableHighAccuracy: true
+    };
+
+    var watch = $cordovaGeolocation.watchPosition(watchOptions);
+    watch.then(
+      null,
+      function(err) {
+        // error
+      },
+      function(position) {
+        // var myPosition = {};
+        console.log("watch on");
+        var lat = position.coords.latitude
+        var lng = position.coords.longitude
+        updateMarker({lat:lat, lng:lng})
+    });
+
+    var addMarker = function(position) {
+      var marker = new google.maps.Marker({
+        position: position,
+        map: $scope.map
+      });
+    }
+    var updateMarker = function(position) {
+      console.log("watch pos: " + position);
+      marker.setMap(null);
+      addMarker(position);
+    }
     
     $scope.addressDisplay = 'Where to park?';
     $scope.myLocation     = {};
@@ -67,6 +99,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         $scope.infowindow.close();
       });
     }
+
     // Called by button click event
     $scope.sendCenterLocation = function(){
       $scope.lat              = $scope.center_coords ? $scope.center_coords.H : $scope.myLocation.lat;
