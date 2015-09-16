@@ -17,7 +17,7 @@
       Request car return
       </button>
     </div>
-    <div id="valetAuth" class="bar bar-subfooter"  ng-show="pickup">
+    <ion-subfooter-bar id="valetAuth" ng-show="pickup">
       <div class="list" ng-show="pickup && !dropoff">
         <div id="pickupAuthInput" class="item item-input-inset">
           <label class="item-input-wrapper">
@@ -28,11 +28,11 @@
           </button>
         </div>
       </div>
-    </div>
+    </ion-subfooter-bar>
     <div id="valetFooter" class="bar bar-footer bar-dark row" ng-show="pickup">
       <button class="button button-light button-large">
         <div class="item item-avatar">
-          <img src="img/valet_pickup.png">
+          <img src="img/valet_pickup.png" style="position: fixed;">
           <h2>{{valet.name}}</h2>
           <p>Vala Agent</p>
         </div>

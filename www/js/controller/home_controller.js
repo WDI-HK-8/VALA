@@ -326,12 +326,21 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         $scope.completeRequest = true;
         $scope.modal.hide();
         // show the cost of the bill
+        $scope.ticker          = 10;
+        $scope.countDown       = setInterval(function(){
+          $scope.$apply($scope.ticker--);
+          console.log($scope.ticker);
+        }, 1000);
+        if($scope.ticker == 0){
+          clearInterval($scope.countDown);
+        }
         $ionicLoading.show({
           // in-line template B/C map refreshes with templateURL
-          template  : '<h1>Thank you for using Vala services.<br> Your bill is ${{totalBill}}',
+          template  : '<h1>Thank you for using Vala services.<br> Your bill is ${{totalBill}}<br><br><p>This message will terminate in {{ticker}} seconds.</p>',
           scope     : $scope,
           noBackdrop: false,
         });
+
         $timeout(function(){window.location.reload()}, 10000);
       })
       .catch(function(response){

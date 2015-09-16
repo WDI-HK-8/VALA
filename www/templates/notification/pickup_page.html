@@ -28,7 +28,7 @@
   </ion-header-bar>
   <ion-content>
     <!-- PICKUP VALET -->
-    <div class="list">
+    <div class="list" style="background-color: #353634; color:white; border-left: #ef4e3a solid 10px;">
       <img class="item item-image" src="img/valet_pickup.png">
       <p class="text-center">{{pickup_valet.name}} Rating</p>
       <label class="item item-input">
@@ -46,7 +46,7 @@
     </div>
 
     <!-- DROP OFF VALET -->
-    <div class="list">
+    <div class="list" style="background-color: #353634; color:white; border-left: #43cee6 solid 10px;">
       <img class="item item-image" src="img/valet_pickup.png">
         <p class="text-center">{{dropoff_valet.name}} Rating</p>
       <label class="item item-input">
@@ -70,6 +70,6 @@
         <ion-radio name="tip" ng-model="tip" ng-value="100">100</ion-radio>
       </label>
     </div>
-    <button class="button button-full button-balanced" ng-click="sendReviews(choice_pickup, choice_dropoff, tip)">Send review</button>
+    <button id="sendReview_btn" class="button button-full button-balanced" ng-click="sendReviews(choice_pickup, choice_dropoff, tip)">Send review</button>
   </ion-content>
 </div>
