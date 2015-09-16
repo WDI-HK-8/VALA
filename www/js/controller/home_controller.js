@@ -8,6 +8,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
   $scope.map;
   var marker;
   var watchId;
+  $scope.currentUser    = CtrlService.getUser();
 
   // Regular google maps API
   if(navigator.geolocation){
@@ -53,7 +54,6 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
     })
 
     // add infoWindow
-    var geocoder = new google.maps.Geocoder();
     $scope.infowindow = new google.maps.InfoWindow({
       content: 'You are here.'
     });
@@ -63,9 +63,10 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       $scope.center_coords = $scope.map.getCenter(); //{G:lat, K:lng}
       console.log('MAP CENTER---> ', $scope.center_coords);
       var latlng   = {
-        lat: $scope.center_coords.G, 
-        lng: $scope.center_coords.K
+        lat: $scope.center_coords.H, 
+        lng: $scope.center_coords.L
       };
+      var geocoder = new google.maps.Geocoder();
       geocoder.geocode({ 'location': latlng }, function(results){
         $scope.$digest($scope.addressDisplay = results[0].formatted_address)
       });
@@ -77,8 +78,8 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
   }
   // Called by button click event
   $scope.sendCenterLocation = function(){
-    $scope.lat              = $scope.center_coords ? $scope.center_coords.G : $scope.myLocation.lat;
-    $scope.lng              = $scope.center_coords ? $scope.center_coords.K : $scope.myLocation.lng;
+    $scope.lat              = $scope.center_coords ? $scope.center_coords.H : $scope.myLocation.lat;
+    $scope.lng              = $scope.center_coords ? $scope.center_coords.L : $scope.myLocation.lng;
     sendPickupRequest($scope.lat, $scope.lng);
   }
   function sendPickupRequest(lat, lng){
@@ -182,7 +183,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       if($scope.pickup){
         $scope.openModal();
         $scope.pickup_valet     = $scope.valet;
-        var pickupMark          = $scope.showMarker({lat:$scope.center_coords.G, lng:$scope.center_coords.K}, 'pickup_pin.png');
+        var pickupMark          = $scope.showMarker({lat:$scope.center_coords.H, lng:$scope.center_coords.L}, 'pickup_pin.png');
         $scope.infowindow       = new google.maps.InfoWindow({
           content: 'Pickup Point'
         });
@@ -308,7 +309,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       request: {
         pick_up : choice_pickup,
         drop_off: choice_dropoff,
-        tip     : tip
+        tip     : Number(tip)
       }
     };
 
