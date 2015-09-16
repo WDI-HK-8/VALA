@@ -36,32 +36,6 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
     var watchId;
     $scope.currentUser    = CtrlService.getUser();
 
-    // // Regular google maps API
-    // if(navigator.geolocation){
-
-    //   var option  = {
-    //     enableHighAccuracy: true,
-    //     timeout           : 10000
-    //   };
-    //   var success = function(response){ //response is position
-    //     $scope.myLocation.lat = response.coords.latitude;
-    //     $scope.myLocation.lng = response.coords.longitude;
-    //     console.log('MY CURRENT LOCATION--->', $scope.myLocation.lat, $scope.myLocation.lng);
-    //     // this should reset current location
-
-    //   };
-    //   var fail    = function(response){
-    //     console.log(response);
-    //   };
-
-    //   navigator.geolocation.getCurrentPosition(success, fail, option);
-    //   // var watchId = 
-    //   //fetches new location on location change
-    //   // navigator.geolocation.clearWatch(watchId);
-    // } else {
-    //   alert('Geolocation not supported.');
-    // }
-
     $window.initMap = function(mapOptions) {
       $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
         marker  = new google.maps.Marker ({
