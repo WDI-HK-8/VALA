@@ -131,3 +131,21 @@ div.item.item-avatar{
 p.ng-binding, .input-label{
   font-size: 20px;
 }
+
+#getCurrentPosition{
+  position: fixed;
+  bottom:13vh;
+  left: 1vh;
+  padding: 0px;
+}
+
+#pickupAuthInput{
+  height: 10vh;
+  bottom: 4vh;
+  background-color: #353634;
+}
+
+#pickupAuthInput input{
+  height: 6vh;
+  font-size: 18px;
+}

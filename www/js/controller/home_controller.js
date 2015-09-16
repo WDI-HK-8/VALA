@@ -1,12 +1,13 @@
 valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $window, $state, $ionicLoading, $ionicPopup, $ionicModal, PrivatePubServices, $cordovaGeolocation, $timeout, $ionicPlatform) {
 
   $ionicPlatform.ready(function(){
-    
+
     $scope.addressDisplay = 'Where to park?';
     $scope.myLocation     = {};
     $scope.requestMade    = false;
     $scope.pickup         = false;
     $scope.dropoff        = false;
+    $scope.centerMarker   = true;
     $scope.map;
     var marker;
     var watchId;
@@ -15,11 +16,11 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
     // Regular google maps API
     if(navigator.geolocation){
 
-      var option  = {
+      var option       = {
         enableHighAccuracy: true,
         timeout           : 10000
       };
-      var success = function(response){ //response is position
+      var success      = function(response){ //response is position
         $scope.myLocation.lat = response.coords.latitude;
         $scope.myLocation.lng = response.coords.longitude;
         console.log('MY CURRENT LOCATION--->', $scope.myLocation.lat, $scope.myLocation.lng);
@@ -48,15 +49,15 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
     }
 
     $window.initMap = function(mapOptions) {
-      $scope.map = new google.maps.Map(document.getElementById('map'), mapOptions);
-        marker  = new google.maps.Marker ({
-        position: mapOptions.center, //AKA my current position
-        map     : $scope.map,
+      $scope.map    = new google.maps.Map(document.getElementById('map'), mapOptions);
+        marker      = new google.maps.Marker ({
+        position  : mapOptions.center, //AKA my current position
+        map       : $scope.map,
         animation : google.maps.Animation.BOUNCE,
       })
 
       // add infoWindow
-      $scope.infowindow = new google.maps.InfoWindow({
+      $scope.infowindow      = new google.maps.InfoWindow({
         content: 'You are here.'
       });
       $scope.infowindow.open($scope.map, marker);
@@ -151,12 +152,14 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
 
         //handles realtime subscriptions
         if(data.valet){
+          $scope.centerMarker     = false;
           $scope.valet            = {};
           $scope.valet.name       = data.valet.name;
           $scope.valet.phone      = data.valet.phone;
           $scope.valet.picture    = data.valet.picture;
           $scope.valet.valet_id   = data.valet.valet_id;
         } else if (data.parking_spot) {
+          $scope.centerMarker     = true;
           $scope.parking          = {};
           $scope.parking.address  = data.parking_spot.address;
           $scope.parking.latLng   = {
@@ -306,7 +309,7 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
       })
     }
 
-    $scope.sendReviews = function(choice_pickup, choice_dropoff, tip){
+    $scope.sendReviews  = function(choice_pickup, choice_dropoff, tip){
       var ratingRequest = {
         request: {
           pick_up : choice_pickup,
@@ -332,8 +335,20 @@ valaApp.controller('homeCtrl', function(CtrlService, $scope, $auth, $http, $wind
         $timeout(function(){window.location.reload()}, 10000);
       })
       .catch(function(response){
+        $ionicPopup.alert({
+          title: 'There was an error in your request.',
+          template: 'Please enter reviews for both valets. Thank you.'
+        });
         console.log(response);
       })
     }
-  })
-})
+
+    $scope.panToCurrentLocation = function(){
+      navigator.geolocation.getCurrentPosition(function(response){
+        $scope.myLocation.lat   = response.coords.latitude;
+        $scope.myLocation.lng   = response.coords.longitude;
+      })
+      $scope.map.panTo($scope.myLocation);
+    }
+  }) //IONIC PLATFORM READY
+}) //CONTROLLER LEVEL
